@@ -14,7 +14,7 @@ const routes = [
             {
                 path: '/PredictionInfo',
                 name: "PredictionInfo",
-                component:  () => import("../views/PredictionInfo")
+                component:  () => import("../views/Pages/PredictionInfo")
             }
             ]
     }
