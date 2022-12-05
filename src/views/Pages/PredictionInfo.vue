@@ -1,4 +1,33 @@
 <template>
+  <div class="startPrediction">
+    <el-dialog title="开始预报名" v-model="startDialogVisible" width="20%" :append-to-body="true">
+      <el-form :model="startformData">
+        <el-form-item label="场次：" prop="session">
+          <el-input v-model="startformData.session" size="small" style="width: 200px">></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="startDialogVisible=false">取 消</el-button>
+          <!--将信息提交到后台-->
+          <el-button type="primary" @click="startSubmit(startformData)">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
+
+  <div class="endPrediction">
+    <el-dialog title="你确定要停止本次预报名吗？" v-model="endDialogVisible" width="20%" :append-to-body="true">
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="endDialogVisible=false">取 消</el-button>
+          <!--将信息提交到后台-->
+          <el-button type="primary" @click="endSubmit(endformData)">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
+
   <div class="total_list">
     <div class="topline">
       <td>
@@ -59,18 +88,28 @@
   import FileSaver from "file-saver";
   import * as XLSX from "xlsx";
   import { at } from "lodash";
-  //import { inquirePredictions } from '@/api/prediction/inquirePredictions'
-  //import { inquirePredictionById } from '@/api/prediction/inquirePredictionById'
-  //import { inquirePredictionByType } from '@/api/prediction/inquirePredictionByType'
+  import { submitSession } from '@/api/prediction/submitSession';
+  import { inquirePredictionSession } from '@/api/prediction/inquirePredictionSession';
+  import { inquirePredictions } from '@/api/prediction/inquirePredictions'
+  import { inquirePredictionById } from '@/api/prediction/inquirePredictionById'
+  import { inquirePredictionByType } from '@/api/prediction/inquirePredictionByType'
   export default {
     data () {
       return {
         name: "PredictionInfo",
-        tableData: [
-
-        ],
+        tableData: [],
+        startformData: [],
+        endformData:[],
+        startDialogVisible: false,
+        endDialogVisible: false,
         at
       };
+    },
+    created () {
+      this.getPredictionsList();
+      this.tableData.forEach(item => {
+        this.$set(item, 'isChecked', false) // 添加判断的字段
+      })
     },
     methods: {
       //导入
@@ -187,6 +226,49 @@
           console.log(arr)
           this.tableData = arr
         } else {
+          alert(data.msg);
+        }
+      },
+      async startPre () {
+        this.startDialogVisible = true;
+        //eslint-disable-next-line no-unused-vars
+        const { data } =await inquirePredictionSession({});
+        console.log(data)
+        if (data.code ==0 || data.code == 200) {
+          //表单中的数据等于后台返回的
+          console.log(data.data)
+          this.endformData = data.data
+        }
+        else {
+          //提示错误
+          alert(data.msg);
+        }
+      },
+      async endPre () {
+        this.endDialogVisible = true;
+      },
+      async startSubmit (startformData) {
+        const that = this;
+        const { data } = await submitSession(
+                startformData);
+        if (data.code ==0 || data.code == 200) {
+          that.startDialogVisible = false;
+          alert("操作成功！");
+        }
+        else {
+          alert(data.msg);
+        }
+      },
+      async endSubmit (endformData) {
+        endformData.session="暂无场次";
+        const that = this;
+        const { data } = await submitSession(
+                endformData);
+        if (data.code ==0 || data.code == 200) {
+          that.startDialogVisible = false;
+          alert("操作成功！");
+        }
+        else {
           alert(data.msg);
         }
       }
