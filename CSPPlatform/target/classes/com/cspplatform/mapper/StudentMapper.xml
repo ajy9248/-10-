@@ -6,7 +6,30 @@
 <!-- namespace属性相当于映射文件的名称 属性值任意-->
 <mapper namespace="com.cspplatform.mapper.StudentMapper">
 
+    <delete id="deleteStudents">
+        delete from student_info where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
 
+    <select id="infoById" resultType="com.cspplatform.entity.Student">
+        select * from student_info where uid = #{uid}
+    </select>
 
+    <select id="findAllStudent" resultType="com.cspplatform.entity.Student">
+        select * from student_info
+    </select>
+
+    <update id="updateStudent">
+        update student_info set
+        <!-- if表示条件判断标签，test接收的是一个返回值为Boolean类型的条件，
+         如果test条件的结果为true，则执行if标签内的语句
+        -->
+        <if test="uname!=null">uname = #{uname},</if>
+        <if test="grade!=null">grade = #{grade}</if>
+        where uid=#{uid}
+    </update>
 
 </mapper>

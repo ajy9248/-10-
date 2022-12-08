@@ -1,8 +1,6 @@
 package com.cspplatform.controller;
 
-import com.cspplatform.service.ex.PasswordNotMatchException;
-import com.cspplatform.service.ex.ServiceException;
-import com.cspplatform.service.ex.UserNotFoundException;
+import com.cspplatform.service.ex.*;
 import com.cspplatform.util.JsonResult;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +24,14 @@ public class BaseController {
         }else if(e instanceof PasswordNotMatchException){
             result.setState(5002);
             result.setMessage("用户的密码错误的异常");
+        }
+        else if(e instanceof UpdateException){
+            result.setState(5003);
+            result.setMessage("更新数据时产生未知的异常");
+        }
+        else if(e instanceof IdNotFoundException){
+            result.setState(5004);
+            result.setMessage("删除数据时产生未知的异常");
         }
 
         return result;

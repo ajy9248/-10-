@@ -9,4 +9,6 @@ public interface IUserService {
      * @return 用户登录信息
      */
     Login login(Login login);
+
+    void changePassword(String uid,String old_pwd,String new_pwd);
 }

@@ -11,5 +11,13 @@
         select * from login where uid = #{uid}
     </select>
 
+    <update id="updatePasswordByUid">
+        update login set pwd=#{pwd} where uid=${uid}
+    </update>
+
+    <select id="findById" resultType="com.cspplatform.entity.Login">
+        select * from login where uid = #{uid}
+    </select>
+
 
 </mapper>

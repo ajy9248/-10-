@@ -4,6 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <!-- namespace属性相当于映射文件的名称 属性值任意-->
-<mapper namespace="com.cspplatform.mapper.AdminMapper">
+<mapper namespace="com.cspplatform.mapper.PredictionMapper">
+
+    <select id="inquireAllPreBySession" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info where session = #{session}
+    </select>
+
+
 
 </mapper>
