@@ -277,32 +277,5 @@
 
 </script>
 <style>
-  .orders {
-    margin: 20px;
-  }
-  .el-button {
-    margin-left: 20px;
-  }
 
-  .addorders {
-    width: 500px;
-    height: 400px;
-    position: fixed;
-    left: 50%;
-    top: 50%;
-  }
-  .modifyorders {
-    width: 500px;
-    height: 400px;
-    position: fixed;
-    left: 50%;
-    top: 50%;
-  }
-  .goods {
-    width: 500px;
-    height: 400px;
-    position: fixed;
-    left: 50%;
-    top: 50%;
-  }
 </style>
