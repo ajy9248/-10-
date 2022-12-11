@@ -29,4 +29,15 @@ public class ScoreController extends BaseController{
         iscoreService.insertScores(file,session);
         return new JsonResult(ok);
     }
+
+    @GetMapping("/ScoreInfo")
+    public JsonResult<List<Score>> getAllScore(){
+        List<Score> data=iscoreService.getScoreInfo();
+        return new JsonResult(ok,data);
+    }
+    @RequestMapping("/InsertOneScore")//插入单条成绩信息
+    public JsonResult<Void> insertOneScore(Score score){
+        iscoreService.insertScore(score);
+        return new JsonResult(ok);
+    }
 }

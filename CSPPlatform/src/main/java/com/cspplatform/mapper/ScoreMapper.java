@@ -24,4 +24,14 @@ public interface ScoreMapper {
      * @param scores 成绩数组
      */
     void insertScores(Score[] scores);
+    /**
+     * 获取所有成绩信息
+     * @return 所有成绩信息
+     */
+    List<Score> findAllScore();
+    /**
+     * 插入成绩信息
+     * @param score 成绩对象
+     */
+    void insertScore(Score score);
 }

@@ -25,7 +25,7 @@ public class UserController extends BaseController{
         //获取session中绑定的数据
         System.out.println(getIdFromSession(session));
 
-        return new JsonResult<Login>(ok,data);
+        return new JsonResult<>(ok,data);
     }
 
     @RequestMapping("/modifyPwd")

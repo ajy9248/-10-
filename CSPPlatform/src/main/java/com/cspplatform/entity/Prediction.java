@@ -5,7 +5,8 @@ import java.util.Date;
 public class Prediction {
     private String uid;
     private String type;
-    private Date date;
+    private Date time;
+    private String timeString;
 
     public String getUid() {
         return uid;
@@ -23,20 +24,27 @@ public class Prediction {
         this.type = type;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getTime() {
+        return time;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setTime(Date time) {
+        this.time = time;
     }
 
-    public Prediction(){}
+    public String getTimeString() {
+        return timeString;
+    }
 
-    public Prediction(String uid, String type, Date date) {
+    public void setTimeString(String timeString) {
+        this.timeString = timeString;
+    }
+
+    public Prediction(String uid, String type, Date time, String timeString) {
         this.uid = uid;
         this.type = type;
-        this.date = date;
+        this.time = time;
+        this.timeString = timeString;
     }
 
     @Override
@@ -44,7 +52,11 @@ public class Prediction {
         return "Prediction{" +
                 "uid='" + uid + '\'' +
                 ", type='" + type + '\'' +
-                ", date=" + date +
+                ", time=" + time +
+                ", timeString='" + timeString + '\'' +
                 '}';
     }
+
+    public Prediction(){}
+
 }

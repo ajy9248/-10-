@@ -1,12 +1,15 @@
 package com.cspplatform.controller;
 
+import com.cspplatform.entity.Prediction;
 import com.cspplatform.service.IPredictionService;
 import com.cspplatform.util.JsonResult;
+import org.apache.commons.collections4.bag.SynchronizedSortedBag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -21,9 +24,35 @@ public class PredictionController extends BaseController{
         return new JsonResult<>(ok, data);
     }
 
-    @GetMapping("/SumByType")
-    public JsonResult<List<Integer>> inquireSumByType(String session){
-        List<Integer> data = predictionService.inquireSumByType(session);
+    @GetMapping("/PredictionByType")
+    public JsonResult<List<Prediction>> inquirePredictionByType(String type){
+        List<Prediction> data = predictionService.inquirePredictionByType(type);
         return new JsonResult<>(ok, data);
+    }
+
+    @GetMapping("/PredictionById")
+    public JsonResult<List<Prediction>> inquirePredictionById(String uid){
+        List<Prediction> data = predictionService.inquirePredictionById(uid);
+        return new JsonResult<>(ok, data);
+    }
+
+    @GetMapping("/PredictionInfo")
+    public JsonResult<List<Prediction>> inquirePredictions(){
+        List<Prediction> data = predictionService.inquirePredictions();
+        return new JsonResult<>(ok, data);
+    }
+
+    @RequestMapping("/ModifyPrediction")
+    public JsonResult<Void> submitSession(HttpSession ssession, String session){
+        ssession.setAttribute("session",session);
+        System.out.println(getSessionFromSession(ssession));
+        return new JsonResult<>(ok);
+    }
+
+    @GetMapping("/PredictionSession")
+    public JsonResult<String> inquireSession(HttpSession ssession){
+        String data = getSessionFromSession(ssession);
+        System.out.println(getSessionFromSession(ssession));
+        return new JsonResult<String>(ok,data);
     }
 }

@@ -27,4 +27,16 @@ public interface IScoreService {
     List<Integer> inquireScoreByRange(String session);
 
     void insertScores(MultipartFile file,String session);
+
+    /**
+     * 获取所有成绩
+     * @return 返回装载Score对象的容器
+     */
+    List<Score> getScoreInfo();
+
+    /**
+     * 插入单条成绩信息
+     * @param score 需要插入的成绩对象
+     */
+    void insertScore(Score score);
 }

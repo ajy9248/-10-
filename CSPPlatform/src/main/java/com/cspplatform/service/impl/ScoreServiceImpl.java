@@ -81,4 +81,14 @@ public class ScoreServiceImpl implements IScoreService {
         }
         scoreMapper.insertScores(scores);
     }
+
+    @Override
+    public List<Score> getScoreInfo() {
+        return scoreMapper.findAllScore();
+    }
+
+    @Override
+    public void insertScore(Score score) {
+        scoreMapper.insertScore(score);
+    }
 }

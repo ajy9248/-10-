@@ -5,12 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-/**
- * @ClassName : PredictionMapper  //类名
- * @Description :   //描述
- * @Author : MayBlackCat  //作者
- * @Date: 2022-12-06 00:14  //时间
- */
 @Mapper
 public interface PredictionMapper {
     /**
@@ -19,4 +13,24 @@ public interface PredictionMapper {
      * @return 预报名信息
      */
     public List<Prediction> inquireAllPreBySession(String session);
+
+    /**
+     * 根据报名类型返回预报名信息
+     * @param type 报名类型
+     * @return 预报名信息
+     */
+    public List<Prediction> inquirePredictionByType(String type);
+
+    /**
+     * 根据学号返回预报名信息
+     * @param uid 学号
+     * @return 预报名信息
+     */
+    public List<Prediction> inquirePredictionById(String uid);
+
+    /**
+     * 返回所有预报名信息
+     * @return 预报名信息
+     */
+    public List<Prediction> inquirePredictions();
 }

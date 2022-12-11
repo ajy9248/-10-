@@ -46,7 +46,7 @@ public class BaseController {
         return session.getAttribute("id").toString();
     }
 
-    protected final String getNameFromSession(HttpSession session){
-        return session.getAttribute("name").toString();
+    protected final String getSessionFromSession(HttpSession ssession){
+        return ssession.getAttribute("session").toString();
     }
 }

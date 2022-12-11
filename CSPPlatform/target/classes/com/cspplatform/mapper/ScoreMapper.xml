@@ -18,12 +18,5 @@
         </foreach>
     </insert>
 
-    <select id="findAllScore" resultType="com.cspplatform.entity.Score">
-        select * from score_info
-    </select>
-
-    <insert id="insertScore">
-        insert into score_info(uid, score, session) value (#{uid},#{score},#{session})
-    </insert>
 
 </mapper>

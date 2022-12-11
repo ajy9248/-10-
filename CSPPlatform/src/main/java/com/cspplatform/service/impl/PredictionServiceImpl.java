@@ -6,6 +6,7 @@ import com.cspplatform.service.IPredictionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -77,5 +78,35 @@ public class PredictionServiceImpl implements IPredictionService {
         result.add(type1);
         result.add(type2);
         return result;
+    }
+
+    @Override
+    public List<Prediction> inquirePredictionByType(String type) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<Prediction> predictions = predictionMapper.inquirePredictionByType(type);
+        for (Prediction prediction : predictions){
+            prediction.setTimeString(formatter.format(prediction.getTime()));
+        }
+        return predictions;
+    }
+
+    @Override
+    public List<Prediction> inquirePredictionById(String uid) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<Prediction> predictions = predictionMapper.inquirePredictionById(uid);
+        for (Prediction prediction : predictions){
+            prediction.setTimeString(formatter.format(prediction.getTime()));
+        }
+        return predictions;
+    }
+
+    @Override
+    public List<Prediction> inquirePredictions() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<Prediction> predictions = predictionMapper.inquirePredictions();
+        for (Prediction prediction : predictions){
+            prediction.setTimeString(formatter.format(prediction.getTime()));
+        }
+        return predictions;
     }
 }
