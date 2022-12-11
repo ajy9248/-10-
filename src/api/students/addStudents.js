@@ -1,12 +1,12 @@
 import request from '../../utils/request'
 //用户传入excel表格后，批量添加学生
-export function addStudent(formData) {
-    console.log(formData)
+export function addStudents(fileData) {
+    console.log(fileData)
     return request({
         url: '/student/AddStudent',
         method: "post",
         data: {
-            formData
+            fileData
         },
     })
 }
