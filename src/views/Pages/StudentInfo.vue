@@ -4,13 +4,13 @@
     <el-dialog title="修改学生信息" v-model="modifyDialogVisible" width="20%" :append-to-body="true">
       <el-form :model="modifyformData">
         <el-form-item label="学号：" prop="student_id">
-          <el-input v-model="modifyformData.student_id" size="small" style="width: 200px">></el-input>
+          <el-input v-model="modifyformData.uid" size="small" style="width: 200px">></el-input>
         </el-form-item>
         <el-form-item label="学生姓名：" prop="car_status">
-          <el-input v-model="modifyformData.student_name" size="small" style="width: 200px">></el-input>
+          <el-input v-model="modifyformData.uname" size="small" style="width: 200px">></el-input>
         </el-form-item>
         <el-form-item label="学生年级：" prop="origin_place">
-          <el-select v-model="modifyformData.student_grade">
+          <el-select v-model="modifyformData.ugrade">
             <el-option label="2019级" value="2019级"></el-option>
             <el-option label="2020级" value="2020级"></el-option>
             <el-option label="2021级" value="2021级"></el-option>
@@ -42,13 +42,13 @@
           ref="upload"
           :action="uploadUrl()"
           name="excelFile"
+          accept=".xlsx,.xls"
           :on-preview="handlePreview"
           :on-remove="handleRemove"
           :on-error="uploadFalse"
           :on-success="uploadSuccess"
-          :auto-upload="false"
-          :before-upload="beforeAvatarUpload">
-        <el-button v-slot="trigger" type="primary">选取文件</el-button>
+          :auto-upload="false">
+        <el-button type="primary">选取文件</el-button>
         <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
       </el-upload>
     </div>
@@ -57,15 +57,15 @@
     <div class="students">
       <el-table :data="tableData" height="400" border style="width: 100%" @selection-change="handleSelectionChange">>
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="student_id" label="学号" sortable :formatter="formatter">
+        <el-table-column prop="uid" label="学号" sortable :formatter="formatter">
         </el-table-column>
-        <el-table-column prop="student_name" label="学生姓名" :formatter="formatter">
+        <el-table-column prop="uname" label="学生姓名" :formatter="formatter">
         </el-table-column>
-        <el-table-column prop="student_grade" label="年级" sortable :formatter="formatter">
+        <el-table-column prop="grade" label="年级" sortable :formatter="formatter">
         </el-table-column>
         <el-table-column prop="action" label="操作" :formatter="formatter">
           <template #default="scope">
-            <el-button size="small" @click="modifyStudent(scope.row.student_id)">编辑</el-button>
+            <el-button size="small" @click="modifyStudent(scope.row.uid)">修改</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -80,12 +80,19 @@ import { inquireStudents } from '@/api/students/inquireStudents'
 import { inquireStudentById } from '@/api/students/inquireStudentById'
 import { submitStudent } from '@/api/students/submitStudent'
 import { deleteStudents } from '@/api/students/deleteStudents'
-import {read, utils} from "xlsx";
+import { addStudents } from '@/api/students/addStudents'
 export default {
   data(){
     return{
       name: "StudentInfo",
-      tableData: [],
+      tableData: [{
+        uid: 1,
+        uname: "张三",
+        grade: "2020级"
+      },{uid: 25,
+        uname: "李四",
+        grade: "2022级"}
+      ],
       student_Id:'',
       allChecked:false,
       modifyDialogVisible: false,
@@ -96,41 +103,47 @@ export default {
   },
   created () {
     this.getStudentsList();
-    this.tableData.forEach(item => {
-      this.$set(item, 'isChecked', false) // 添加判断的字段
-    })
+    // this.tableData.forEach(item => {
+    //   this.$set(item, 'isChecked', false) // 添加判断的字段
+    // })
   },
   methods:{
     uploadUrl: function() {
       return (
-          "/student/import"
+          "@/api/students/addStudents"
       );
     },
-    uploadSuccess(response, file, fileList) {
-      if (response.status) {
-        alert("文件导入成功");
-      } else {
-        alert("文件导入失败");
-      }
+    uploadSuccess(response) {
+      alert("文件上传成功！ ");
     },
     uploadFalse() {
       alert("文件上传失败！");
     },
-    // 上传前对文件的类型的判断
-    beforeAvatarUpload(file) {
-      const extension = file.name.split(".")[1] === "xls";
-      const extension2 = file.name.split(".")[1] === "xlsx";
-      if (!extension && !extension2) {
-        alert("上传文件只能是 xls、xlsx 格式!");
-      }
-      return extension || extension2;
-    },
     submitUpload() {
-      this.$refs.upload.submit();
+      //this.$refs.upload.submit();
+      for (let i = 0; i < this.fileList.length; i++) {
+        let fd = new FormData()
+        // fd.append('name', '文件名字')
+        // fd.append('type', '类型一')
+        // fd.append('file', this.fileList[i].raw)
+        this.upDataFile(fd);
+      }
     },
+    async upDataFile(fileData) {
+      const {data} = await addStudents(fileData);
+      console.log(data)
+      if (data.message) {
+        this.$message({
+          message: data.message,
+          type: 'success'
+        })
+      }
+    },
+    //移除文件
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
+    //预览文件
     handlePreview(file) {
       if (file.response.status) {
         alert("此文件导入成功");
@@ -141,7 +154,7 @@ export default {
 
     // 用于保存选中的行
     handleSelectionChange(val) {
-      this.multipleSelection = val;
+      this.multipleSelection.push(val);
     },
     //查询学生列表
     async getStudentsList() {
@@ -197,7 +210,7 @@ export default {
     },
     //批量删除学生
     async deleteStudent(){
-      if(this.multipleSelection==""){
+      if(this.multipleSelection===""){
         this.$message.warning('请至少选择一条数据进行删除！')
       }else {
         this.$confirm('此操作将批量删除学生, 是否继续?', '提示', {
@@ -207,7 +220,7 @@ export default {
           center:true
         }).then(async () => {
           const {data} = await deleteStudents(this.multipleSelection);
-          if (data.code == 200) {
+          if (data.code === 200) {
             alert("删除成功！");
             await this.getStudentsList();
           } else {
@@ -215,9 +228,6 @@ export default {
           }
         })
       }
-    },
-    async addStudent(){
-
     }
   }
 }
