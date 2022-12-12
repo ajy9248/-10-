@@ -1,16 +1,16 @@
 <template>
   <div class="startPrediction">
     <el-dialog title="开始预报名" v-model="startDialogVisible" width="20%" :append-to-body="true">
-      <el-form :model="startformData">
+      <el-form>
         <el-form-item label="场次：" prop="session">
-          <el-input v-model="startformData.session" size="small" style="width: 200px">></el-input>
+          <el-input v-model="session" size="small" style="width: 200px">></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="startDialogVisible=false">取 消</el-button>
           <!--将信息提交到后台-->
-          <el-button type="primary" @click="startSubmit(startformData)">确 定</el-button>
+          <el-button type="primary" @click="startSubmit(session)">确 定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -30,19 +30,20 @@
 
   <div class="total_list">
     <div class="topline">
+        <div class="search_box">
+          <el-input v-model="student_id" placeholder="请输入查询的学号"></el-input>
+          <el-button style="margin-top: 5px" @click="getPredictionById">查询</el-button>&nbsp;&nbsp;&nbsp;
+        </div>
+      <div style="margin-left: 30px">
       <td>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-      <input type="text" v-model = "student_Id" placeholder="请输入查询的学号">
-      <el-button @click="getPredictionById">查询</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-      </td>
-      <td>
-      类型：<select name="" id="" v-model="operation">
+      类型：<el-select name="" id="" v-model="operation">
       <option value="" disabled>--请选择--</option>
       <option>免费团报</option>
       <option>自费团报</option>
-      </select>
-      <el-button @click="getPredictionByType">查询</el-button>
+      </el-select>
+      <el-button style="margin-left: 20px" @click="getPredictionByType">查询</el-button>
       </td>
+    </div>
       <td>
         <el-upload
                 action="/上传文件的接口"
@@ -52,21 +53,19 @@
                 accept=".xls, .xlsx"
                 ref="upload"
                 :multiple="true">
-        <el-button>导入报名信息</el-button>
+        <el-button style="margin-left: 100px" type="primary">导入信息</el-button>
         </el-upload>
       </td>
       <td>
-        <el-button @click="exportClick">导出报名信息</el-button>
-
-      </td>
-      <td>
-        <div style="text-align: right; margin: 0">
-      <el-button @click = "startPre()" type="primary">开始预报名</el-button>
-      <el-button @click = "endPre()" type="danger">停止预报名</el-button>
-        </div>
+        <el-button style="margin-left: 20px" @click="exportClick" type="success">导出信息</el-button>
       </td>
       <br>
   </div>
+    <div class="excels" style="margin-top: 15px">
+      <el-button @click = "startPre()" type="warning">开始预报名</el-button>
+      <el-button style="margin-left: 20px" @click = "endPre()" type="danger">停止预报名</el-button>
+    </div>
+    <div class="predictions">
       <el-table :data="tableData" height="400" border style="width: 100%" id="predictionTable">
         <el-table-column prop="student_id" label="学号" sortable width="200">
         </el-table-column>
@@ -81,13 +80,13 @@
         <el-table-column prop="prediction_session" label="场次" sortable width="150">
         </el-table-column>
       </el-table>
+    </div>
   </div>
 </template>
 <script>
   import "async";
   import FileSaver from "file-saver";
   import * as XLSX from "xlsx";
-  import { at } from "lodash";
   import { submitSession } from '@/api/prediction/submitSession';
   import { inquirePredictionSession } from '@/api/prediction/inquirePredictionSession';
   import { inquirePredictions } from '@/api/prediction/inquirePredictions'
@@ -98,11 +97,11 @@
       return {
         name: "PredictionInfo",
         tableData: [],
-        startformData: [],
         endformData:[],
+        student_id:'',
+        session: '',
         startDialogVisible: false,
         endDialogVisible: false,
-        at
       };
     },
     created () {
@@ -231,26 +230,14 @@
       },
       async startPre () {
         this.startDialogVisible = true;
-        //eslint-disable-next-line no-unused-vars
-        const { data } =await inquirePredictionSession({});
-        console.log(data)
-        if (data.code ==0 || data.code == 200) {
-          //表单中的数据等于后台返回的
-          console.log(data.data)
-          this.endformData = data.data
-        }
-        else {
-          //提示错误
-          alert(data.msg);
-        }
       },
       async endPre () {
         this.endDialogVisible = true;
       },
-      async startSubmit (startformData) {
-        const that = this;
+      async startSubmit () {
+        const session = this.session;
         const { data } = await submitSession(
-                startformData);
+                session);
         if (data.code ==0 || data.code == 200) {
           that.startDialogVisible = false;
           alert("操作成功！");
@@ -259,11 +246,11 @@
           alert(data.msg);
         }
       },
-      async endSubmit (endformData) {
-        endformData.session="暂无场次";
-        const that = this;
+      async endSubmit () {
+        this.session = "暂无场次";
+        const session = this.session;
         const { data } = await submitSession(
-                endformData);
+                session);
         if (data.code ==0 || data.code == 200) {
           that.startDialogVisible = false;
           alert("操作成功！");
@@ -277,5 +264,27 @@
 
 </script>
 <style>
-
+  .total_list{
+    height : 100%;
+    width : 100%;
+    align-items: center;
+    flex-direction : column;
+  }
+  .topline{
+    margin-top : 10px;
+    display: flex;
+    flex-direction : row;
+    align-items: start;
+  }
+  .search_box{
+    box-sizing: border-box;
+    width : 28%;
+    display: flex;
+  }
+  .excels{
+    align-items: center;
+  }
+  .predictions{
+    margin: 20px;
+  }
 </style>
