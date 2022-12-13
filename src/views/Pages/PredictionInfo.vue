@@ -29,18 +29,18 @@
   </div>
 
   <div class="total_list">
-    <div class="topline">
+    <div class="topline" style="margin-left: 100px">
         <div class="search_box">
           <el-input v-model="student_id" placeholder="请输入查询的学号"></el-input>
-          <el-button style="margin-top: 5px" @click="getPredictionById">查询</el-button>&nbsp;&nbsp;&nbsp;
+          <el-button style="margin-left: 20px" @click="getPredictionById">查询</el-button>&nbsp;&nbsp;&nbsp;
         </div>
-      <div style="margin-left: 30px">
+      <div style="margin-left: 100px">
       <td>
-      类型：<el-select name="" id="" v-model="operation">
+      类型：<select name="" id="" v-model="operation">
       <option value="" disabled>--请选择--</option>
       <option>免费团报</option>
       <option>自费团报</option>
-      </el-select>
+      </select>
       <el-button style="margin-left: 20px" @click="getPredictionByType">查询</el-button>
       </td>
     </div>
@@ -53,7 +53,7 @@
                 accept=".xls, .xlsx"
                 ref="upload"
                 :multiple="true">
-        <el-button style="margin-left: 100px" type="primary">导入信息</el-button>
+        <el-button style="margin-left: 150px" type="primary">导入信息</el-button>
         </el-upload>
       </td>
       <td>
@@ -88,7 +88,6 @@
   import FileSaver from "file-saver";
   import * as XLSX from "xlsx";
   import { submitSession } from '@/api/prediction/submitSession';
-  import { inquirePredictionSession } from '@/api/prediction/inquirePredictionSession';
   import { inquirePredictions } from '@/api/prediction/inquirePredictions'
   import { inquirePredictionById } from '@/api/prediction/inquirePredictionById'
   import { inquirePredictionByType } from '@/api/prediction/inquirePredictionByType'
