@@ -11,16 +11,14 @@
             <el-form-item label="">
                 <el-input type="password" placeholder="请输入密码" v-model="password" autocomplete="off"></el-input>
             </el-form-item>
-            <el-button type="primary" @click="SubmitForm" style="width: 100%;">登录</el-button>
-
-            <el-row style="text-align: center;margin-top: 5px;">
-                <el-link type="primary" style = "margin-left: 146px"  @click="toRegister">用户注册</el-link>
-            </el-row>
+            <el-button type="primary" @click="SubmitForm" style="width: 100%;margin-bottom: 10px">登录</el-button>
         </el-form>
     </div>
 </template>
 
 <script>
+    import jsCookie from 'js-cookie';
+
     export default{
         name:'Login',
         data:function(){
@@ -37,6 +35,7 @@
                     UserName: form.UserName,
                     PassWord: form.PassWord,
                 });
+                jsCookie.set('username',this.username)
                 if (data.code == 200) {
                     //存储用户信息
                     window.localStorage.setItem('userToken',JSON.stringify(data.token))
@@ -46,9 +45,6 @@
                 else {
                     alert(data.msg);
                 }
-            },
-            toRegister:function(){
-                this.$router.push('/Register')
             }
         }
     }
@@ -74,7 +70,7 @@
         padding: 30px 35px 15px 35px;
         background: #fff;
         border: 1px solid #eaeaea;
-        text-align: left;
+        text-align: center;
         box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
     }
 
