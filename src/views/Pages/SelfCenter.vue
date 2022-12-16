@@ -21,8 +21,7 @@
 
 <script>
     import jsCookie from 'js-cookie';
-    //import { modifyPwd } from '@/api/self/modifyPwd';
-    //import pwd from "@/api/pwd.js";
+
     export default {
         name: "selfcenter",
         data:function(){
