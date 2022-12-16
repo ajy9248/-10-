@@ -1,30 +1,34 @@
 <template>
-    <!--有且只有一个根节点-->
-    <!-- login-wrap:图片样式-->
     <div class="login-wrap">
-        <el-form class="login-container">
-            <h1 class="title">CSP考试预报名系统</h1>
-            <el-form-item label="">
+        <h1 style="font-size: 40px" class="title">CSP考试预报名系统</h1>
+        <el-form class="login-container" id="form" ref="loginForm" :model="form" :rules="rules">
+            <el-form-item prop="uid">
                 <!--placeholder：文本框内提示 -->
-                <el-input type="text" placeholder="请输入账号" v-model="username" autocomplete="off"></el-input>
+                <el-input style="margin-top: 20px" placeholder="请输入账号" v-model="form.uid" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item label="">
-                <el-input type="password" placeholder="请输入密码" v-model="password" autocomplete="off"></el-input>
+            <el-form-item prop="pwd">
+                <el-input placeholder="请输入密码" v-model="form.pwd" autocomplete="off"></el-input>
             </el-form-item>
-            <el-button type="primary" @click="SubmitForm" style="width: 100%;margin-bottom: 10px">登录</el-button>
+            <el-button type="primary" @click="SubmitForm" style="width: 50%;margin-bottom: 20px;margin-top: 20px">登录</el-button>
         </el-form>
     </div>
 </template>
 
 <script>
     import jsCookie from 'js-cookie';
+    import {CheckLogin} from "@/api/CheckLogin";
 
     export default{
-        name:'Login',
-        data:function(){
+        data(){
             return {
-                username:'',
-                password:''
+                form:{
+                    uid: "",
+                    pwd: "",
+                },
+                rules: {
+                    uid: [{required: true, message: "请输入账号", trigger: "blur"}],
+                    pwd: [{required: true, message: "请输入密码", trigger: "blur"}],
+                },
             }
         },
         methods:{
@@ -32,8 +36,8 @@
                 const { form } = this;
                 //eslint-disable-next-line no-unused-vars
                 const { data } = await CheckLogin({
-                    UserName: form.UserName,
-                    PassWord: form.PassWord,
+                    uid: form.uid,
+                    pwd: form.pwd,
                 });
                 jsCookie.set('username',this.username)
                 if (data.code == 200) {
