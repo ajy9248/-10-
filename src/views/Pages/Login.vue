@@ -2,12 +2,12 @@
     <div class="login-wrap">
         <h1 style="font-size: 40px" class="title">CSP考试预报名系统</h1>
         <el-form class="login-container" id="form" ref="loginForm" :model="form" :rules="rules">
-            <el-form-item prop="uid">
+            <el-form-item prop="username">
                 <!--placeholder：文本框内提示 -->
-                <el-input style="margin-top: 20px" placeholder="请输入账号" v-model="form.uid" autocomplete="off"></el-input>
+                <el-input style="margin-top: 20px" placeholder="请输入账号" v-model="form.username" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item prop="pwd">
-                <el-input placeholder="请输入密码" v-model="form.pwd" autocomplete="off"></el-input>
+            <el-form-item prop="password">
+                <el-input placeholder="请输入密码" v-model="form.password" autocomplete="off"></el-input>
             </el-form-item>
             <el-button type="primary" @click="SubmitForm" style="width: 50%;margin-bottom: 20px;margin-top: 20px">登录</el-button>
         </el-form>
@@ -22,12 +22,12 @@
         data(){
             return {
                 form:{
-                    uid: "",
-                    pwd: "",
+                    username: "",
+                    password: "",
                 },
                 rules: {
-                    uid: [{required: true, message: "请输入账号", trigger: "blur"}],
-                    pwd: [{required: true, message: "请输入密码", trigger: "blur"}],
+                    username: [{required: true, message: "请输入账号", trigger: "blur"}],
+                    password: [{required: true, message: "请输入密码", trigger: "blur"}],
                 },
             }
         },
@@ -36,8 +36,8 @@
                 const { form } = this;
                 //eslint-disable-next-line no-unused-vars
                 const { data } = await CheckLogin({
-                    uid: form.uid,
-                    pwd: form.pwd,
+                    username: form.username,
+                    password: form.password,
                 });
                 jsCookie.set('username',this.username)
                 if (data.code == 200) {
