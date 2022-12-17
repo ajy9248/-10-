@@ -1,7 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Main from '../views/Main/Main'
 import StudentMain from '../views/Main/StudentMain'
+import TeacherMain from '../views/Main/TeacherMain'
 const routes = [
+    {
+        path: "/login",
+        name: "login",
+        component: () => import("../views/Pages/Login.vue")
+    },
     {
         path: '/',
         name:"main",
@@ -43,8 +49,24 @@ const routes = [
                 path: "/studentpre",
                 name: "studentpre",
                 component: () => import("../views/Pages/StudentPre.vue")
+            },
+            {
+                path: "/selfcenter",
+                name: "selfcenter",
+                component: () => import("../views/Pages/SelfCenter.vue")
             }
-
+        ]
+    },
+    {
+        path: '/teachermain',
+        name: "teachermain",
+        component: TeacherMain,
+        children: [
+            {
+                path: "/inquirescores",
+                name: "inquirescores",
+                component: () => import("../views/Pages/InquireScores.vue")
+            }
         ]
     }
 ]
