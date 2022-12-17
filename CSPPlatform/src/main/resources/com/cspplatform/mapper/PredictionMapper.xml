@@ -22,5 +22,18 @@
         select * from prediction_info
     </select>
 
+    <delete id="cancelthePrediction">
+        delete from prediction_info
+        where uid=#{uid} and session=#{session}
+    </delete>
+
+    <select id="inquireMyPrediction" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info where uid=#{uid}
+    </select>
+
+    <insert id="submitthePrediction">
+        insert into prediction_info
+        values (#{uid},#{type},#{time},#{session})
+    </insert>
 
 </mapper>

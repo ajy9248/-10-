@@ -7,6 +7,7 @@ public class Prediction {
     private String type;
     private Date time;
     private String timeString;
+    private String session;
 
     public String getUid() {
         return uid;
@@ -40,11 +41,12 @@ public class Prediction {
         this.timeString = timeString;
     }
 
-    public Prediction(String uid, String type, Date time, String timeString) {
+    public Prediction(String uid, String type, Date time, String timeString,String session) {
         this.uid = uid;
         this.type = type;
         this.time = time;
         this.timeString = timeString;
+        this.session=session;
     }
 
     @Override
@@ -54,9 +56,17 @@ public class Prediction {
                 ", type='" + type + '\'' +
                 ", time=" + time +
                 ", timeString='" + timeString + '\'' +
+                ", session='" + session + '\''+
                 '}';
     }
 
     public Prediction(){}
 
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
+    }
 }

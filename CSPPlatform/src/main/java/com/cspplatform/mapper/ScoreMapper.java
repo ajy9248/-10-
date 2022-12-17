@@ -34,4 +34,17 @@ public interface ScoreMapper {
      * @param score 成绩对象
      */
     void insertScore(Score score);
+
+    /**
+     * 获取所有可选场次
+     * @return 所有可选场次
+     */
+    List<String> findAllSession();
+
+    /**
+     * 根据考试场次按分数从高到低获取成绩信息
+     * @param session 考试场次
+     * @return
+     */
+    List<Score> inquireScoreOrder(String session);
 }

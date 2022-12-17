@@ -32,4 +32,15 @@
         where uid=#{uid}
     </update>
 
+    <insert id="insertStudents">
+        insert into student_info (uid, uname,grade,freechance)
+        values
+        <foreach collection="array" item="students" separator=",">
+            (#{uid},#{uname},#{grade},#{freechance})
+        </foreach>
+    </insert>
+
+    <select id="findById" resultType="com.cspplatform.entity.Student">
+        select * from student_info where uid = #{uid}
+    </select>
 </mapper>

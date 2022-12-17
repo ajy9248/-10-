@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -42,6 +43,12 @@ public class StudentController extends BaseController{
     @RequestMapping("/ModifyStudent")
     public JsonResult<Void> changeInfo(Student student){
         iStudentService.updateInfo(student);
+        return new JsonResult<>(ok);
+    }
+
+    @RequestMapping("/AddStudent")
+    public JsonResult<Void> insertStudent(MultipartFile file){
+        iStudentService.insertStudents(file);
         return new JsonResult<>(ok);
     }
 

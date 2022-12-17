@@ -1,6 +1,7 @@
 package com.cspplatform.mapper;
 
 import com.cspplatform.entity.Login;
+import com.cspplatform.entity.Score;
 import com.cspplatform.entity.Student;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -35,4 +36,16 @@ public interface StudentMapper {
      */
     Integer updateStudent(Student student);
 
+    /**
+     * 插入学生信息
+     * @param students 学生数组
+     */
+    void insertStudents(Student[] students);
+
+    /**
+     * 根据用户id查询学生数据
+     * @param uid 用户id
+     * @return 如果找到则返回对象，反之则返回null
+     */
+    Student findById(String uid);
 }

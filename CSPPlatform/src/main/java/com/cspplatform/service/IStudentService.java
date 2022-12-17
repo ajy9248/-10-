@@ -1,6 +1,7 @@
 package com.cspplatform.service;
 
 import com.cspplatform.entity.Student;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,5 +30,11 @@ public interface IStudentService {
      * @param student
      */
     void updateInfo(Student student);
+
+    /**
+     * 用户传入excel表格后，批量添加学生
+     * @param file excel文件
+     */
+    void insertStudents(MultipartFile file);
 
 }

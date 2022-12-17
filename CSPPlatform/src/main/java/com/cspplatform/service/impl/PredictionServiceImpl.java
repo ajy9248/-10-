@@ -109,4 +109,27 @@ public class PredictionServiceImpl implements IPredictionService {
         }
         return predictions;
     }
+
+    @Override
+    public void cancelthePrediction(String session, String uid,String current_session) {
+        if(current_session.equals(session))
+        {
+            predictionMapper.cancelthePrediction(uid,session);
+        }
+    }
+
+    @Override
+    public List<Prediction> inquireMyPrediction(String uid) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<Prediction> predictions = predictionMapper.inquireMyPrediction(uid);
+        for (Prediction prediction : predictions){
+            prediction.setTimeString(formatter.format(prediction.getTime()));
+        }
+        return predictions;
+    }
+
+    @Override
+    public void submitthePrediction(Prediction prediction) {
+        predictionMapper.submitthePrediction(prediction);
+    }
 }

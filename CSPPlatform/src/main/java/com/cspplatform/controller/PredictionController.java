@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
-@RequestMapping("prediction")
+@RequestMapping("/prediction")
 public class PredictionController extends BaseController{
     @Autowired
     private IPredictionService predictionService;
@@ -54,5 +54,24 @@ public class PredictionController extends BaseController{
         String data = getSessionFromSession(ssession);
         System.out.println(getSessionFromSession(ssession));
         return new JsonResult<String>(ok,data);
+    }
+
+    @RequestMapping("/CancelPrediction")
+    public JsonResult<Void> cancel(HttpSession ssession,String session,String uid){
+        String current_session=getSessionFromSession(ssession);
+        predictionService.cancelthePrediction(session,uid,current_session);
+        return new JsonResult<>(ok);
+    }
+
+    @GetMapping("/MyPrediction")
+    public JsonResult<List<Prediction>> inquiremypredictions(String uid){
+        List<Prediction> data = predictionService.inquireMyPrediction(uid);
+        return new JsonResult<>(ok, data);
+    }
+
+    @RequestMapping("/AddPrediction")
+    public JsonResult<Void> Submit(Prediction prediction){
+        predictionService.submitthePrediction(prediction);
+        return new JsonResult<>(ok);
     }
 }

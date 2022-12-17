@@ -45,4 +45,25 @@ public interface IPredictionService {
      * @return 预报名信息
      */
     public List<Prediction> inquirePredictions();
+
+    /**
+     * 取消预报名
+     * @param session 场次
+     * @param uid 报名学生学号
+     * @param current_session 现在开展的场次
+     */
+    public void cancelthePrediction(String session,String uid,String current_session);
+
+    /**
+     * 返回该生的所有预报名信息
+     * @param uid
+     * @return 预报名信息
+     */
+    public List<Prediction> inquireMyPrediction(String uid);
+
+    /**
+     * 学生提交预报名信息
+     * @param prediction 预报名信息
+     */
+    public void submitthePrediction(Prediction prediction);
 }

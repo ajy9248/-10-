@@ -1,6 +1,8 @@
 package com.cspplatform.service.impl;
 
+import com.cspplatform.entity.Prediction;
 import com.cspplatform.entity.Score;
+import com.cspplatform.entity.Student;
 import com.cspplatform.mapper.ScoreMapper;
 import com.cspplatform.service.IScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,12 @@ public class ScoreServiceImpl implements IScoreService {
 
     @Autowired
     ScoreMapper scoreMapper;
+
+    @Autowired
+    PredictionServiceImpl predictionService;
+
+    @Autowired
+    StudentServiceImpl studentService;
 
     @Override
     public List<Score> inquireScoreBySession(String session) {
@@ -74,7 +82,7 @@ public class ScoreServiceImpl implements IScoreService {
             //获取每行
             Row row = sheetAt.getRow(i);
             if(i>2){
-                scores[i-3].setUid(row.getCell(3).getStringCellValue());
+                scores[i-3].setUid(row.getCell(7).getStringCellValue());
                 scores[i-3].setScore(Integer.valueOf(row.getCell(10).getStringCellValue()));
                 scores[i-3].setSession(session);
             }
@@ -90,5 +98,47 @@ public class ScoreServiceImpl implements IScoreService {
     @Override
     public void insertScore(Score score) {
         scoreMapper.insertScore(score);
+    }
+
+    @Override
+    public List<Student> inquireAbsence(String session) {
+        List<Score> scores = scoreMapper.inquireScoreBySession(session);
+        List<Prediction> predictions = predictionService.inquireAllPreBySession(session);
+        List<Student> students = new ArrayList<>();
+        boolean flag = false;
+        for (Prediction prediction : predictions){
+            for (Score score : scores){
+                if (score.getUid().equals(prediction.getUid())){
+                    flag = true;
+                    break;
+                }else {
+                    flag = false;
+                }
+            }
+            if (!flag){
+                students.add(studentService.search(prediction.getUid()));
+            }
+        }
+        return students;
+    }
+
+    @Override
+    public List<String> getAllSession() {
+        return scoreMapper.findAllSession();
+    }
+
+    @Override
+    public Integer inquireHighest(String session) {
+        return scoreMapper.inquireScoreOrder(session).get(0).getScore();
+    }
+
+    @Override
+    public Integer inquireAverage(String session) {
+        List<Score> scores = scoreMapper.inquireScoreBySession(session);
+        int sum = 0;
+        for(Score score : scores){
+            sum += score.getScore();
+        }
+        return sum / scores.size();
     }
 }
