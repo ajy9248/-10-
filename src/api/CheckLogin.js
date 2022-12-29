@@ -1,19 +1,11 @@
 //检查登录用户是否存在于数据库中
 import request from '../utils/request'
-export function CheckLogin (user) {
-    if(user.username == ''){
-        alert('请填写用户名');
-        return;
-      }
-      if(user.password == ''){
-        alert('请填写密码');
-        return;
-    }
+export function CheckLogin (username,password) {
+    let Data = "uid="+username+"&pwd="+password;
+    Data = Data.replace(/\s*/g,"");
     return request({
-        url: '/login/check',
+        url: '/user/login',
         method: "post",
-        data: {
-            user
-        }
+        data: Data
     })
 }
