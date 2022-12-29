@@ -1,11 +1,9 @@
 import request from '../../utils/request'
 export function deleteTeachers (uids) {
-    const Data = JSON.parse(JSON.stringify(uids))[1];
+    let Data = uids
     return request({
-        url: '',
+        url: '/teacher/DeleteTeachers',
         method: "post",
-        data: {
-            Data
-        },
+        data: Data,
     })
 }

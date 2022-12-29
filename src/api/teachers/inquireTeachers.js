@@ -2,7 +2,7 @@
 import request from '../../utils/request'
 export function inquireTeachers () {
     return request({
-        url: '',
+        url: '/teacher/TeacherInfo',
         method: "get",
         data: '',
     })
