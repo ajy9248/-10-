@@ -1,25 +1,26 @@
-<!-- eslint-disable vue/valid-template-root -->
+
 <template>
+  <div class="topline">
   <div class="search_box"  >
-    <el-input v-model="uid" placeholder="请输入查询的工号" style="width: 180px" size="mini"></el-input>
+    <el-input type="text" v-model="teacher_Id" placeholder="请输入查询的工号"></el-input>
     <el-button @click="getTeacherById">查询</el-button>
   </div>
   <div class="button">
-    <!--// :disabled="this.sels.length === 0" 如果没有数据让删除按钮失效 -->
-    <el-button style="margin-left: 10px" type="primary" @click="batchDelect" :disabled="this.sels.length === 0">批量删除</el-button>
+    <el-button style="margin-left: 10px" type="primary" @click="deleteTeacher()">批量删除</el-button>
     <el-button style="margin-left: 10px" type="primary" @click="addTeacher" >添加</el-button>
+  </div>
   </div>
 
   <div class="teachers">
     <el-table :data="tableData"  height="400" border  @selection-change="handleSelectionChange" max-height="500p ">>
       <el-table-column type="selection" width="40"></el-table-column>
-      <el-table-column prop="uid" label="工号" sortable :formatter="formatter">
+      <el-table-column prop="uid" label="工号" sortable>
       </el-table-column>
-      <el-table-column prop="uname" label="姓名" :formatter="formatter">
+      <el-table-column prop="uname" label="姓名" >
       </el-table-column>
-      <el-table-column prop="identity" label="身份" :formatter="formatter">
+      <el-table-column prop="identity" label="身份">
       </el-table-column>
-      <el-table-column prop="action" label="操作" :formatter="formatter">
+      <el-table-column prop="action" label="操作">
         <template #default="scope">
           <el-button size="small" @click="modifyTeacher(scope.row.uid)">修改</el-button>
         </template>
@@ -76,26 +77,24 @@
 <script>
 import {inquireTeachers} from '@/api/teachers/inquireTeachers'
 import { submitTeacher } from '@/api/teachers/submitTeacher'
+import {insertTeacher} from "@/api/teachers/insertTeacher";
 import { inquireTeacherById } from '@/api/teachers/inquireTeacherById'
 import {deleteTeachers} from "@/api/teachers/deleteTeachers";
+import {deleteStudents} from "@/api/students/deleteStudents";
 
 export default {
   data() {
     return {
+      name: "TeacherInfo",
+      uid:"",
       input: "",
-      tableData: [{
-        uid: 1,
-        uname: "张三",
-        identity: "2020级主任"
-      },{uid: 25,
-        uname: "张四",
-        identity: "2021级主任"}
-      ],
+      teacher_Id:'',
+      tableData: [],
       modifyDialogVisible: false,
       modifyformData: [],
       addDialogVisible: false,
       addformData: [],
-      sels: [], //当前选框选中的值
+      multipleSelection: []
 
     }
   },
@@ -105,12 +104,10 @@ export default {
   },
 
   methods: {
-
     //查询教师列表
    async getTeachersList() {
-      //eslint-disable-next-line no-unused-vars
       const {data} = await inquireTeachers({});
-      if (data.code == 200) {
+      if (data.state === 200) {
         //表单中的数据等于后台返回的列表
         this.tableData = data.data
       } else {
@@ -120,12 +117,11 @@ export default {
     },
     //uid查询教师
     async getTeacherById() {
-      const uid = this.uid;
+      const uid = this.teacher_Id;
       const {data} = await inquireTeacherById(uid);
-      if (data.code === 200) {
+      if (data.state === 200) {
         let arr = []
         arr.push(data.data)
-        console.log(arr)
         this.tableData = arr
       } else {
         alert(data.msg);
@@ -136,7 +132,7 @@ export default {
       this.modifyDialogVisible = true;
       const { data } = await inquireTeacherById(uid);
       console.log(data);
-      if (data.code == 200) {
+      if (data.state === 200) {
         //表单中的数据等于后台返回的列表
         this.modifyformData = data.data
       }
@@ -146,12 +142,12 @@ export default {
       }
     },
     //将修改数据提交到后台
-    modifySubmit (modifyformData) {
-      var that = this;
-      const { data } = submitTeacher(
-          modifyformData);
-      if (data.code == 200) {
-        that.modifyDialogVisible = false;
+    async modifySubmit (modifyformData) {
+      console.log(modifyformData)
+      const { data } = await submitTeacher(modifyformData);
+      console.log(data)
+      if (data.state === 200) {
+        this.modifyDialogVisible = false;
         alert("修改成功！");
         this.getTeachersList();
       }
@@ -160,40 +156,46 @@ export default {
       }
     },
     //获取选中的值
-    handleSelectionChange(sels) {
-      this.sels = sels;
-      console.log("选中的值",sels.map((item) => item.id));
+    handleSelectionChange(val) {
+      let ids = ''
+      for(let i=0;i<val.length;i++){
+        ids +="uid="+val[i].uid + "&"
+      }
+      ids = ids.substring(0,ids.length-1)
+      console.log(ids)
+      this.multipleSelection=ids;
     },
-    //批量删除执行操作
-    batchDelect() {
-      // 删除前的提示
-      this.$confirm("确认删除记录吗?", "提示", {
-        type: "warning",
-      }).then(() => {
-        let ids = this.sels.map((item) => item.id);
-        /* 根据后台想要的参数格式选择
-          console.log(ids.join(",")); //1,2,3,4
-           console.log(ids); //[1,2,3,4]
-        */
-        // 请求接口
-        deleteTeachers({ ids: ids }).then((res) => {
-          if (res.code == "200") {
-            this.$message({
-              message: "删除成功",
-              type: "success",
-            });
+    //批量删除老师
+    async deleteTeacher(){
+      console.log(this.multipleSelection)
+      if(this.multipleSelection == ""){
+        this.$message.warning('请至少选择一条数据进行删除！')
+      }else {
+        this.$confirm('此操作将删除选中教师的个人信息, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center:true
+        }).then(async () => {
+          console.log(this.multipleSelection)
+          const {data} = await deleteTeachers(this.multipleSelection);
+          if (data.state === 200) {
+            alert("删除成功！");
+            await this.getTeachersList();
+          } else {
+            alert(data.msg);
           }
-        });
-      });
+        })
+      }
     },
     addTeacher () {
       this.addDialogVisible = true
       console.log(this.addDialogVisible)
     },
-    addSubmit (addformData) {
-      var that = this;
-      let { data } = submitTeacher(addformData);
-      if (data.code == 200) {
+    async addSubmit (addformData) {
+      const that = this;
+      let { data } = await insertTeacher(addformData);
+      if (data.state == 200) {
         that.addDialogVisible = false;
         alert("添加成功！");
         this.getTeachersList();
@@ -210,12 +212,18 @@ export default {
 
 <style scoped>
 .teachers {
-  margin: 20px;
+  margin-top: 60px;
 }
-.search_box {
-  position: fixed;
-  left: 25%;
-  top: 13%;
+.topline{
+  margin-top : 10px;
+  display: flex;
+  flex-direction : row;
+  align-items: start;
+}
+.search_box{
+  box-sizing: border-box;
+  width : 40%;
+  display: flex;
 }
 .button{
   position: fixed;

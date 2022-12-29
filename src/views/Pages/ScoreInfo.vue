@@ -1,43 +1,46 @@
 <template>
-  <div >
+  <div class="total_list">
+    <div class="topline">
     <el-upload
         class="upload-demo"
         ref="upload"
         :action="uploadUrl()"
         name="excelFile"
+        :file-list="fileList"
         accept=".xlsx,.xls"
-        :on-preview="handlePreview"
         :on-remove="handleRemove"
-        :on-error="uploadFalse"
-        :on-success="uploadSuccess"
+        :on-change="onUploadChange"
         :auto-upload="false">
+      <!--选择文件后立即上传，后端通过文件名获取导入考试的场次-->
       <el-button type="primary">选取文件</el-button>
-      <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
+      <div slot="tip" class="el-upload__tip">只能上传xlsx/xls文件,文件名为场次,如“21.xls"</div>
     </el-upload>
-  </div>
+    <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
+    </div>
   <div class="scores">
     <el-table :data="tableData" height="400" border style="width: 100%">>
-      <el-table-column prop="uid" label="学号" sortable :formatter="formatter">
+      <el-table-column prop="uid" label="学号" sortable >
       </el-table-column>
-      <el-table-column prop="uname" label="姓名" :formatter="formatter">
+      <el-table-column prop="uname" label="姓名" >
       </el-table-column>
-      <el-table-column prop="grade" label="年级" sortable :formatter="formatter">
+      <el-table-column prop="grade" label="年级" sortable >
       </el-table-column>
-      <el-table-column prop="score" label="分数"  sortable :formatter="formatter">
+      <el-table-column prop="score" label="分数"  sortable >
       </el-table-column>
-      <el-table-column prop="session" label="考试场次" sortable :formatter="formatter">
+      <el-table-column prop="session" label="考试场次" sortable >
       </el-table-column>
     </el-table>
+  </div>
   </div>
 </template>
 
 <script>
-import {inquireScores} from "@/api/managescores/inquireScores";
-import {scoresImport} from "@/api/managescores/scoresImport";
-
+import {inquireScores} from "@/api/score/inquireScores";
+import {scoresImport} from "@/api/score/scoresImport";
 export default {
   data() {
     return {
+      session:'',
       tableData: []
     }
   },
@@ -48,77 +51,77 @@ export default {
   methods: {
     uploadUrl: function() {
       return (
-          "@/api/managescores/scoresImport"
+          '/score/InsertScore'
       );
+
     },
-    // eslint-disable-next-line no-unused-vars
-    uploadSuccess(response) {
-      alert("文件上传成功！ ");
-    },
-    uploadFalse() {
-      alert("文件上传失败！");
-    },
-    submitUpload() {
-      //this.$refs.upload.submit();
-      for (let i = 0; i < this.fileList.length; i++) {
-        let fd = new FormData()
-        // fd.append('name', '文件名字')
-        // fd.append('type', '类型一')
-        // fd.append('file', this.fileList[i].raw)
-        this.upDataFile(fd);
+    onUploadChange(file,fileList){
+      this.files=file
+      this.fileList = fileList;
+      console.log("---file----->"+this.fileList)//
+      let reader = new FileReader();
+      reader.onload = function(e){
+        console.log("-------->")
       }
     },
-    async upDataFile(fileData) {
-      const {data} = await scoresImport(fileData);
+    async submitUpload() {
+      // this.$refs.upload.submit();
+      console.log("submitUpload-------->"+this.fileList)
+      let formData = new FormData();
+      formData.append('StudentInfoExcel', this.fileList.raw)
+      console.log(this.fileList)
+      const {data} = await scoresImport(this.fileList);
       console.log(data)
-      if (data.message) {
-        this.$message({
-          message: data.message,
-          type: 'success'
-        })
+      if (data.state === 200) {
+        this.$message.success("导入成绩成功")
+        await this.getScoresList();
+      } else {
+        alert(data.msg);
       }
     },
     //移除文件
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
-    //预览文件
-    handlePreview(file) {
-      if (file.response.status) {
-        alert("此文件导入成功");
-      } else {
-        alert("此文件导入失败");
-      }
-    },
-    //查询成绩列表
+    //查询成绩列表,默认最新的session
     async getScoresList() {
       //eslint-disable-next-line no-unused-vars
       const {data} = await inquireScores({});
-      if (data.code == 200) {
+      if (data.state === 200) {
         //表单中的数据等于后台返回的列表
         this.tableData = data.data
       } else {
         //提示错误
         alert(data.msg);
       }
-    }
+    },
   }
 }
 </script>
 
 <style scoped>
-.scores {
-  margin: 20px;
+.scores{
+  margin-top : 10px;
+  display: flex;
+  flex : 1;
 }
-.search_box {
-  position: fixed;
-  left: 20%;
-  top: 11%;
+
+.search_box{
+  box-sizing: border-box;
+  width : 40%;
+  display: flex;
 }
-.button{
-  position: fixed;
-  left:80%;
-  top: 11%;
+.topline{
+  margin-top : 10px;
+  display: flex;
+  flex-direction : row;
+  align-items: start;
+}
+.total_list{
+  height : 100%;
+  width : 100%;
+  align-items: center;
+  flex-direction : column;
 }
 
 </style>

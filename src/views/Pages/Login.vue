@@ -34,17 +34,35 @@
         methods:{
             async SubmitForm() {
                 const { form } = this;
-                //eslint-disable-next-line no-unused-vars
-                const { data } = await CheckLogin({
-                    username: form.username,
-                    password: form.password,
-                });
-                jsCookie.set('username',this.username)
-                if (data.code == 200) {
+                if(form.username === ''){
+                    alert('请填写用户名');
+                    return;
+                }else if(form.password === ''){
+                    alert('请填写密码');
+                    return;
+                }
+                const { data } = await CheckLogin(form.username,form.password);
+                console.log(data)
+
+                if (data.state === 200) {
                     //存储用户信息
-                    window.localStorage.setItem('userToken',JSON.stringify(data.token))
-                    window.localStorage.setItem('userdata',JSON.stringify(data.data))
-                    this.$router.push('/Main')
+                  window.sessionStorage.setItem('userToken',JSON.stringify(data.token))
+                  window.sessionStorage.setItem('userdata',JSON.stringify(data.data))
+
+                  if(data.data.type === "管理员") {
+                    console.log("1")
+                    this.$router.push('/')
+                  }else if(data.data.type === "学生"){
+                    console.log("2")
+                    console.log(form.username)
+                    console.log(data.data.freeChance)
+                    jsCookie.set('username', form.username)
+                    jsCookie.set('freechance',data.data.freeChance)
+                    this.$router.push('/StudentMain')
+                  }else {
+                    console.log("3")
+                    this.$router.push('/TeacherMain')
+                  }
                 }
                 else {
                     alert(data.msg);
@@ -61,7 +79,7 @@
         width: 100%;
         height: 100%;
         padding-top: 10%;
-        background-image: url("../assets/login.jpg");
+        background-image: url("../../assets/login.jpg");
         background-repeat: no-repeat;
         background-position: center right;
         background-size: 100%;

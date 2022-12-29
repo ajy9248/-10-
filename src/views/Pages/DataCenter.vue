@@ -5,15 +5,15 @@
         <el-form-item label="考试场次">
           <el-select
               placeholder="请选择考试场次"
-              v-model="querysession"
+              v-model="session"
               maxlength="255"
               :disabled="false"
               @change="selectChanged($event)"
               clearable>
             <el-option
               v-for="item in options"
-              :key="item.label"
-              :label="item.label"
+              :key="item.name"
+              :label="item.name"
               :value="item.value">
             </el-option>
           </el-select>
@@ -77,47 +77,20 @@ import { inquireSumByType } from '@/api/datacenter/inquireSumByType';
 import { inquireScoreByRange} from '@/api/datacenter/inquireScoreByRange';
 import { inquireAllSession } from '@/api/datacenter/inquireAllSession'
 import { inquireAbsence } from '@/api/datacenter/inquireAbsence'
-import { inquireHighest } from '@/api/datacenter/inquireHighest'
-import { inquireAverage } from '@/api/datacenter/inquireAverage'
+import { inquireHighestAndAverage } from '@/api/datacenter/inquireHighestAndAverage'
 import * as XLSX from "xlsx";
-import jsCookie from "js-cookie";
 export default {
   name: "data_center",
   data() {
     return {
-      machineNo: '',
-      TypeSum:[],
-      GradeSum:[],
-      ScoreRange:[],
-      querysession:'',
+      session:'',
       scoredata:[
         //   {
-        // high: 350,
+        // high:350,
         // avg:170}
       ],
-      Absencedata: [
-      //     {
-      //   uid: 1,
-      //   uname: "张三",
-      //   grade: "2020级"
-      // },{uid: 25,
-      //   uname: "李四",
-      //   grade: "2022级"}
-      ],
-      options:[
-        // {
-        // label:'第28次', value:'28'
-        // },
-        // {
-        //   label:'第27次', value:'27'
-        // },
-        // {
-        //   label:'第26次', value:'26'
-        // },
-        // {
-        //   label: '第25次', value: '25'
-        // }
-      ],
+      Absencedata: [],
+      options:[],
       //  成绩分布柱状图
       ScoreRGoption: {
         tooltip: {
@@ -186,8 +159,8 @@ export default {
           type: 'bar',
           barGap: 0,
           barWidth: 10,
-          data: this.ScoreRange,
-          // data:[60, 22, 2, 1, 0],
+          //data: this.ScoreRange,
+          //data:[60, 22, 2, 1, 0],
           itemStyle: {
             normal: {
               color: new Chart.graphic.LinearGradient(
@@ -229,25 +202,14 @@ export default {
           trigger: 'item',
           formatter: "{a} <br/>{b} : {c} ({d}%)"
         },
-        visualMap: {
-          show: false,
-          min: 80,
-          max: 600,
-          inRange: {
-            colorLightness: [0, 1]
-          }
-        },
         series: [{
           name: '报名类型统计',
           type: 'pie',
           radius: '55%',
           center: ['50%', '50%'],
-
-          data: this.TypeSum,
           // data:[{ value: 400, name: '免费报名' },
           //   { value: 200, name: '自费报名' }
           // ].sort(function (a, b) { return a.value - b.value; }),
-
           roseType: 'radius',
           label: {
             normal: {
@@ -267,12 +229,16 @@ export default {
             }
           },
           itemStyle: {
-            normal: {
-              color: '#c23531',
-              shadowBlur: 200,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
+          normal: {
+            color: function (colors) {
+              const colorList = [
+                '#fc8251',
+                '#b5e2a2'
+              ];
+              return colorList[colors.dataIndex];
             }
-          },
+          }
+        },
           animationType: 'scale',
           animationEasing: 'elasticOut',
           animationDelay: function (idx) {
@@ -297,27 +263,16 @@ export default {
           trigger: 'item',
           formatter: "{a} <br/>{b} : {c} ({d}%)"
         },
-        visualMap: {
-          show: false,
-          min: 80,
-          max: 600,
-          inRange: {
-            colorLightness: [0, 1]
-          }
-        },
         series: [{
           name: '报名年级统计',
           type: 'pie',
           radius: '55%',
           center: ['50%', '50%'],
-
-          data: this.GradeSum,
         //   data: [{ value: 300, name: '2020级' },
         //   { value: 310, name: '2021级' },
         //   { value: 220, name: '2022级' },
         //   { value: 110, name: '2023级' }
         // ].sort(function (a, b) { return a.value - b.value; }),
-
           roseType: 'radius',
           label: {
             normal: {
@@ -338,9 +293,17 @@ export default {
           },
           itemStyle: {
             normal: {
-              color: '#c23531',
-              shadowBlur: 200,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
+              color: function (colors) {
+                const colorList = [
+                  '#fc8251',
+                  '#5470c6',
+                  '#b5e2a2',
+                  '#ef6567',
+                  // '#f9c956',
+                  // '#75bedc'
+                ];
+                return colorList[colors.dataIndex];
+              }
             }
           },
           animationType: 'scale',
@@ -348,7 +311,7 @@ export default {
           animationDelay: function (idx) {
             return Math.random() * 200;
           }
-        }]
+        }],
       }
     }
   },
@@ -360,20 +323,14 @@ export default {
   created() {
     this.getOptions()
   },
-  // 挂载结束状态(里面是操作)
-  mounted() {
-    this.getSumByType()
-    this.getSumByGrade()
-    this.getScoreByRange()
-  },
   methods: {
     //初始时获取所有可选下拉框
     async getOptions() {
       try {
-        const selectResult = await inquireAllSession()
-        if(selectResult){
+        const {data} = await inquireAllSession()
+        if(data.state === 200){
           //查出值之后对之前声明好的变量进行赋值
-          this.options = selectResult
+          this.options = data.data
         }else{
           this.$message.info(
               '没有可选择的下拉框'
@@ -386,13 +343,12 @@ export default {
           type: 'warning',
           showClose: false
         })
-      } finally {
-        this.dialogLoading = false
       }
     },
     //下拉框选项被改变时,重新存储value
     selectChanged(params) {
       this.session=params
+      console.log(this.session)
       this.getSumByType()
       this.getSumByGrade()
       this.getScoreByRange()
@@ -401,26 +357,21 @@ export default {
     },
     //获取最高分和平均分
     async getScoreInfo() {
-      const {high} = await inquireHighest(this.session);
-      const {avg} = await inquireAverage(this.session);
-
-      if (avg.code === 200 && high.code === 200) {
-        this.scoredata.avg = avg.data
-        this.scoredata.high = high.data
+      const {data} = await inquireHighestAndAverage(this.session);
+      console.log(data)
+      if (data.state === 200) {
+        this.scoredata = data.data
       } else {
-        alert(avg.msg);
-        alert(high.msg);
+        alert(data.msg);
       }
     },
     // 报名类型统计
     async getSumByType() {
-      this.chart = Chart.init(this.$refs.SumTPchart)
-      // this.chart.setOption(this.SumTPoption)
-      const { data } =await inquireSumByType(this.session
-      );
-      if (data.code == 200) {
-        console.log(data.data)
-        this.chart.setOption({
+      this.SumTPchart = Chart.init(this.$refs.SumTPchart)
+      const { data } =await inquireSumByType(this.session);
+      if (data.state === 200) {
+        this.SumTPchart.setOption(this.SumTPoption)
+        this.SumTPchart.setOption({
           series: [{
             data: data.data
           }]
@@ -432,13 +383,11 @@ export default {
     },
     // 报名年级统计
     async getSumByGrade() {
-      this.chart = Chart.init(this.$refs.SumGDchart)
-      // this.chart.setOption(this.SumGDoption)
-      const { data } =await inquireSumByGrade(this.session
-      );
-      if (data.code == 200) {
-        console.log(data.data)
-        this.chart.setOption({
+      this.SumGDchart = Chart.init(this.$refs.SumGDchart)
+      const { data } =await inquireSumByGrade(this.session);
+      if (data.state === 200) {
+        this.SumGDchart.setOption(this.SumGDoption)
+        this.SumGDchart.setOption({
           series: [{
             data: data.data
           }]
@@ -450,16 +399,21 @@ export default {
     },
     //成绩分布
     async getScoreByRange() {
-      this.chart = Chart.init(this.$refs.ScoreRGchart)
-      // this.chart.setOption(this.ScoreRGoption,true)
+      this.ScoreRGchart = Chart.init(this.$refs.ScoreRGchart)
       const { data } =await inquireScoreByRange(this.session
       );
-      let ScoreRange = []
-      for(let i=0; i<data.data.length; i++){
-        ScoreRange.push(data.data[i].range);
+      let ScoreR = []
+      for(let i=0; i<5; i++){
+        ScoreR.push(data.data[i]);
       }
-      if (data.code == 200) {
-        console.log(ScoreRange)
+      if (data.state === 200) {
+        this.ScoreRGchart.setOption(this.ScoreRGoption)
+        this.ScoreRGchart.setOption({
+          series: [{
+            data: ScoreR
+          }]
+        })
+        //console.log(ScoreR)
       }
       else {
         alert(data.msg);
@@ -468,7 +422,7 @@ export default {
     //获取缺考的列表
     async getAbsence() {
       const {data} = await inquireAbsence(this.session);
-      if (data.code === 200) {
+      if (data.state === 200) {
         this.Absencedata = data.data
       } else {
         alert(data.msg);
@@ -509,18 +463,6 @@ export default {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-}
-
-.stbgc {
-  background-color: #fff;
-  height: 60px;
-  line-height: 60px;
-  border-radius: 5px;
-  padding: 0px 16px;
-}
-
-.stsearch {
-  text-align: center;
 }
 .text-c {
   text-align: center;

@@ -3,14 +3,14 @@
   <div class="modify_student">
     <el-dialog title="修改学生信息" v-model="modifyDialogVisible" width="20%" :append-to-body="true">
       <el-form :model="modifyformData">
-        <el-form-item label="学号：" prop="student_id">
+        <el-form-item label="学号：" prop="uid">
           <el-input v-model="modifyformData.uid" size="small" style="width: 200px">></el-input>
         </el-form-item>
-        <el-form-item label="学生姓名：" prop="car_status">
+        <el-form-item label="学生姓名：" prop="uname">
           <el-input v-model="modifyformData.uname" size="small" style="width: 200px">></el-input>
         </el-form-item>
-        <el-form-item label="学生年级：" prop="origin_place">
-          <el-select v-model="modifyformData.ugrade">
+        <el-form-item label="学生年级：" prop="grade">
+          <el-select v-model="modifyformData.grade">
             <el-option label="2019级" value="2019级"></el-option>
             <el-option label="2020级" value="2020级"></el-option>
             <el-option label="2021级" value="2021级"></el-option>
@@ -32,7 +32,7 @@
     <div class="topline">
       <!--搜索框-->
       <div class="search_box"  >
-        <el-input v-model="student_Id" placeholder="请输入查询的学号"></el-input>
+        <el-input type="text" v-model="student_Id" placeholder="请输入查询的学号"></el-input>
         <el-button @click="getStudentById">查询</el-button>
       </div>
       <!--批量操作按钮-->
@@ -42,35 +42,36 @@
           ref="upload"
           :action="uploadUrl()"
           name="excelFile"
+          :file-list="fileList"
           accept=".xlsx,.xls"
-          :on-preview="handlePreview"
           :on-remove="handleRemove"
-          :on-error="uploadFalse"
-          :on-success="uploadSuccess"
+          :on-change="onUploadChange"
           :auto-upload="false">
+          <!--选择文件后立即上传-->
         <el-button type="primary">选取文件</el-button>
-        <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
+
+        <div slot="tip" class="el-upload__tip">只能上传xlsx/xls文件</div>
       </el-upload>
+      <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
     </div>
 
     <!--学生表单-->
     <div class="students">
       <el-table :data="tableData" height="400" border style="width: 100%" @selection-change="handleSelectionChange">>
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="uid" label="学号" sortable :formatter="formatter">
+        <el-table-column prop="uid" label="学号" sortable>
         </el-table-column>
-        <el-table-column prop="uname" label="学生姓名" :formatter="formatter">
+        <el-table-column prop="uname" label="学生姓名">
         </el-table-column>
-        <el-table-column prop="grade" label="年级" sortable :formatter="formatter">
+        <el-table-column prop="grade" label="年级" sortable>
         </el-table-column>
-        <el-table-column prop="action" label="操作" :formatter="formatter">
+        <el-table-column prop="action" label="操作">
           <template #default="scope">
             <el-button size="small" @click="modifyStudent(scope.row.uid)">修改</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-
   </div>
 </template>
 
@@ -81,20 +82,15 @@ import { inquireStudentById } from '@/api/students/inquireStudentById'
 import { submitStudent } from '@/api/students/submitStudent'
 import { deleteStudents } from '@/api/students/deleteStudents'
 import { addStudents } from '@/api/students/addStudents'
+import axios from "axios";
 export default {
   data(){
     return{
       name: "StudentInfo",
-      tableData: [{
-        uid: 1,
-        uname: "张三",
-        grade: "2020级"
-      },{uid: 25,
-        uname: "李四",
-        grade: "2022级"}
-      ],
-      student_Id:'',
-      allChecked:false,
+      tableData: [],
+      student_Id:" ",
+      fileList: [],
+      files:[],
       modifyDialogVisible: false,
       modifyformData: [],
       multipleSelection: []
@@ -103,63 +99,46 @@ export default {
   },
   created () {
     this.getStudentsList();
-    // this.tableData.forEach(item => {
-    //   this.$set(item, 'isChecked', false) // 添加判断的字段
-    // })
   },
   methods:{
     uploadUrl: function() {
       return (
-          "@/api/students/addStudents"
+          '/student/AddStudent'
       );
+
     },
-    uploadSuccess(response) {
-      alert("文件上传成功！ ");
-    },
-    uploadFalse() {
-      alert("文件上传失败！");
-    },
-    submitUpload() {
-      //this.$refs.upload.submit();
-      for (let i = 0; i < this.fileList.length; i++) {
-        let fd = new FormData()
-        // fd.append('name', '文件名字')
-        // fd.append('type', '类型一')
-        // fd.append('file', this.fileList[i].raw)
-        this.upDataFile(fd);
+    onUploadChange(file,fileList){
+      this.files=file
+      this.fileList = fileList;
+      console.log("---file----->"+this.fileList)//
+      let reader = new FileReader();
+      reader.onload = function(e){
+        console.log("-------->")
       }
     },
-    async upDataFile(fileData) {
-      const {data} = await addStudents(fileData);
+    async submitUpload() {
+      // this.$refs.upload.submit();
+      console.log("submitUpload-------->"+this.fileList)
+      let formData = new FormData();
+      formData.append('StudentInfoExcel', this.fileList.raw)
+      console.log(this.fileList)
+      const {data} = await addStudents(this.fileList);
       console.log(data)
-      if (data.message) {
-        this.$message({
-          message: data.message,
-          type: 'success'
-        })
+      if (data.state === 200) {
+        this.$message.success("批量添加学生成功")
+        await this.getStudentsList();
+      } else {
+        alert(data.msg);
       }
     },
     //移除文件
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
-    //预览文件
-    handlePreview(file) {
-      if (file.response.status) {
-        alert("此文件导入成功");
-      } else {
-        alert("此文件导入失败");
-      }
-    },
-
-    // 用于保存选中的行
-    handleSelectionChange(val) {
-      this.multipleSelection.push(val);
-    },
     //查询学生列表
     async getStudentsList() {
       const {data} = await inquireStudents({});
-      if (data.code === 200) {
+      if (data.state === 200) {
         this.tableData = data.data
       } else {
         alert(data.msg);
@@ -167,12 +146,12 @@ export default {
     },
     // 根据id查询学生信息
     async getStudentById() {
-      const uId = this.student_Id;
-      const {data} = await inquireStudentById(uId);
-      if (data.code === 200) {
+      let uid = this.student_Id;
+      const {data} = await inquireStudentById(uid);
+      console.log(data)
+      if (data.state === 200) {
         let arr = []
         arr.push(data.data)
-        console.log(arr)
         this.tableData = arr
       } else {
         alert(data.msg);
@@ -181,12 +160,9 @@ export default {
     //让该行数据回显到编辑弹框里
     async modifyStudent (student_id) {
       this.modifyDialogVisible = true;
-      //eslint-disable-next-line no-unused-vars
       const { data } =await inquireStudentById(student_id);
-      console.log(data)
-      if (data.code === 200) {
+      if (data.state === 200) {
         //表单中的数据等于后台返回的
-        console.log(data.data)
         this.modifyformData = data.data
       }
       else {
@@ -196,31 +172,43 @@ export default {
     },
     //把修改后的数据提交到后台
     async modifySubmit (modifyformData) {
-      const that = this;
-      const { data } = await submitStudent(
-          modifyformData);
-      if (data.code === 200) {
-        that.modifyDialogVisible = false;
+      console.log(modifyformData)
+      const { data } = await submitStudent(modifyformData);
+      if (data.state === 200) {
+        this.modifyDialogVisible = false;
         alert("修改成功！");
         await this.getStudentsList();
       }
       else {
+        this.modifyDialogVisible = false;
         alert(data.msg);
       }
     },
+    // 用于保存选中的行
+    handleSelectionChange(val) {
+      let ids =""
+      for(let i=0;i<val.length;i++){
+        ids +="uids="+val[i].uid + "&"
+      }
+      ids = ids.substring(0,ids.length-1)
+      console.log(ids)
+      this.multipleSelection=ids;
+    },
     //批量删除学生
     async deleteStudent(){
-      if(this.multipleSelection===""){
+      console.log(this.multipleSelection)
+      if(this.multipleSelection == ""){
         this.$message.warning('请至少选择一条数据进行删除！')
       }else {
-        this.$confirm('此操作将批量删除学生, 是否继续?', '提示', {
+        this.$confirm('此操作将删除选中学生的个人信息、预报名信息及成绩信息, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
           center:true
         }).then(async () => {
+          console.log(this.multipleSelection)
           const {data} = await deleteStudents(this.multipleSelection);
-          if (data.code === 200) {
+          if (data.state === 200) {
             alert("删除成功！");
             await this.getStudentsList();
           } else {
