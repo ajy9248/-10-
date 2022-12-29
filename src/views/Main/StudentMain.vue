@@ -5,8 +5,8 @@
     <el-container>
       <el-header class="common-header flex-float">
         <div class="flex">
-          <img class="logo" src="../../assets/logo.png" alt="">
-          <h1 class="title">CSP预报名系统</h1>
+          <img class="logo" src="../../assets/csp.png" alt="">
+          <h1 style="color: #eaeaea;margin-top: 35px;margin-left: 10px;font-size: x-large" class="title">CSP预报名系统</h1>
         </div>
         <el-button type="danger" @click="logout()">退出 </el-button>
       </el-header>
