@@ -4,12 +4,12 @@ import StudentMain from '../views/Main/StudentMain'
 import TeacherMain from '../views/Main/TeacherMain'
 const routes = [
     {
-        path: "/login",
+        path: "/",
         name: "login",
         component: () => import("../views/Pages/Login.vue")
     },
     {
-        path: '/',
+        path: '/main',
         name:"main",
         component: Main,
         children: [
@@ -73,7 +73,7 @@ const routes = [
 
 
 const router = createRouter({
-    history:createWebHistory(process.env.BASE_URL),
+    history:createWebHistory(),
     routes
 })
 
