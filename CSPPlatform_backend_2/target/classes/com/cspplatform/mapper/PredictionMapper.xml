@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace属性相当于映射文件的名称 属性值任意-->
+<mapper namespace="com.cspplatform.mapper.PredictionMapper">
+
+    <select id="inquireAllPreBySession" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info where session = #{session}
+    </select>
+
+    <select id="inquirePredictionByType" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info where type = #{type}
+    </select>
+
+    <select id="inquirePredictionById" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info where uid = #{uid}
+    </select>
+
+    <select id="inquirePredictions" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info
+    </select>
+
+    <delete id="cancelPrediction">
+        delete from prediction_info
+        where uid=#{uid} and session=#{session}
+    </delete>
+
+    <select id="inquireMyPrediction" resultType="com.cspplatform.entity.Prediction">
+        select * from prediction_info where uid=#{uid}
+    </select>
+
+    <insert id="submitPrediction">
+        insert into prediction_info
+        values (#{uid},#{type},#{time},#{session})
+    </insert>
+
+    <update id="SubFreeChance">
+        update student_info
+        set freechance=0
+        where uid IN (
+        select uid from prediction_info where session=#{current_session} and type="免费团报"
+            )
+    </update>
+
+    <update id="setSessionFlag">
+        update login
+        set sessionFlag=#{sessionFlag}
+        where type="管理员"
+    </update>
+
+    <select id="getSessionFlag" resultType="com.cspplatform.entity.Login">
+        select * from login
+        where type="管理员" and uid in(select max(uid) from login where type="管理员")
+    </select>
+
+    <insert id="insertPredictions" parameterType="java.util.List">
+        insert into prediction_info (uid, type)
+        values
+        <foreach collection="list" item="predictions" separator=",">
+            (#{predictions.uid},#{predictions.type})
+        </foreach>
+    </insert>
+
+</mapper>

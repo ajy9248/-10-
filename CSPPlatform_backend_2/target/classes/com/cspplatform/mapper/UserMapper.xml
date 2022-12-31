@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace属性相当于映射文件的名称 属性值任意-->
+<mapper namespace="com.cspplatform.mapper.UserMapper">
+
+    <!-- resultType属性指定结果的类型 -->
+    <select id="loginById" resultType="com.cspplatform.entity.Login">
+        select * from login where uid = #{uid}
+    </select>
+
+    <update id="updatePasswordByUid">
+        update login set pwd=#{pwd} where uid=${uid}
+    </update>
+
+    <select id="findById" resultType="com.cspplatform.entity.Login">
+        select * from login where uid = #{uid}
+    </select>
+
+</mapper>

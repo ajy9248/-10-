@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace属性相当于映射文件的名称 属性值任意-->
+<mapper namespace="com.cspplatform.mapper.StudentMapper">
+
+    <delete id="deleteStudents">
+        delete from student_info where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deleteLogin">
+        delete from login where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deletePrediction">
+        delete from prediction_info where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deleteScore">
+        delete from score_info where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <select id="infoById" resultType="com.cspplatform.entity.Student">
+        select * from student_info where uid = #{uid}
+    </select>
+
+    <select id="findAllStudent" resultType="com.cspplatform.entity.Student">
+        select * from student_info
+    </select>
+
+    <update id="updateStudent">
+        update student_info set
+        uname=#{uname},grade=#{grade}
+        where uid=#{uid}
+    </update>
+
+    <insert id="insertStudents">
+        insert into student_info (uid, uname,grade,freechance)
+        values
+        <foreach collection="array" item="students" separator=",">
+            (#{students.uid,jdbcType=VARCHAR},#{students.uname,jdbcType=VARCHAR},#{students.grade,jdbcType=VARCHAR},#{students.freechance,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+    <insert id="addLogin">
+        insert into login (uid, pwd,type,sessionFlag)
+        values
+        <foreach collection="array" item="logins" separator=",">
+            (#{logins.uid,jdbcType=VARCHAR},#{logins.pwd,jdbcType=VARCHAR},#{logins.type,jdbcType=VARCHAR},#{logins.sessionFlag,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <select id="inquireFreeChance" resultType="Integer">
+        select freechance from student_info where uid = #{uid}
+    </select>
+
+</mapper>
