@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace属性相当于映射文件的名称 属性值任意-->
+<mapper namespace="com.cspplatform.mapper.ScoreMapper">
+
+    <select id="inquireScoreBySession" resultType="com.cspplatform.entity.Score">
+        select * from score_info where session = #{session}
+    </select>
+
+    <insert id="insertScores">
+        insert into score_info (uid, score, session)
+        values
+        <foreach collection="array" item="scores" separator=",">
+            (#{scores.uid,jdbcType=VARCHAR},#{scores.score,jdbcType=INTEGER},#{scores.session,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <select id="findAllScore" resultType="com.cspplatform.entity.Score">
+        select * from score_info
+    </select>
+
+    <insert id="insertScore">
+        insert into score_info(uid, score, session) value (#{uid},#{score},#{session})
+    </insert>
+
+    <select id="inquireScoreOrder" resultType="com.cspplatform.entity.Score">
+        select * from score_info where session = #{session} order by score desc
+    </select>
+
+    <select id="findAllSession" resultType="String">
+        select DISTINCT session from score_info order by session
+    </select>
+
+    <select id="inquireScoreById" resultType="com.cspplatform.entity.Score">
+        select * from score_info where uid = #{uid}
+    </select>
+</mapper>

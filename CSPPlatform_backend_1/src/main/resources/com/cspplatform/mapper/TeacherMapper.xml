@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace属性相当于映射文件的名称 属性值任意-->
+<mapper namespace="com.cspplatform.mapper.TeacherMapper">
+
+    <delete id="deleteTeachers">
+        delete from teacher_info where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deleteLogin">
+        delete from login where uid IN (
+        <foreach collection="array" item="uid" separator=",">
+            #{uid}
+        </foreach>
+        )
+    </delete>
+
+    <select id="infoById" resultType="com.cspplatform.entity.Teacher">
+        select * from teacher_info where uid = #{uid}
+    </select>
+
+    <select id="findAllTeacher" resultType="com.cspplatform.entity.Teacher">
+        select * from teacher_info
+    </select>
+
+    <update id="updateTeacher">
+        update teacher_info set
+        uname = #{uname},identity = #{identity}
+        where uid=#{uid}
+    </update>
+
+    <insert id="insertTeacher">
+        insert into teacher_info values(#{uid},#{uname},#{identity})
+    </insert>
+
+    <select id="SortById" resultType="com.cspplatform.entity.Teacher">
+        select * from teacher_info ORDER BY uid
+        <if test="#{sort}==true">DESC </if>
+    </select>
+</mapper>
