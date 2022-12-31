@@ -6,14 +6,14 @@
         ref="upload"
         :action="uploadUrl()"
         name="excelFile"
-        :file-list="fileList"
-        accept=".xlsx,.xls"
+        :file-list="file"
+        accept=".xlsx"
         :on-remove="handleRemove"
         :on-change="onUploadChange"
         :auto-upload="false">
       <!--选择文件后立即上传，后端通过文件名获取导入考试的场次-->
       <el-button type="primary">选取文件</el-button>
-      <div slot="tip" class="el-upload__tip">只能上传xlsx/xls文件,文件名为场次,如“21.xls"</div>
+      <div slot="tip" class="el-upload__tip">只能上传xlsx文件,文件名为场次,如“21.xlsx"</div>
     </el-upload>
     <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
     </div>
@@ -37,11 +37,14 @@
 <script>
 import {inquireScores} from "@/api/score/inquireScores";
 import {scoresImport} from "@/api/score/scoresImport";
+import {addStudents} from "@/api/students/addStudents";
 export default {
   data() {
     return {
       session:'',
-      tableData: []
+      tableData: [],
+      fileList: [],
+      files:[]
     }
   },
   //渲染查询结果
@@ -56,31 +59,37 @@ export default {
 
     },
     onUploadChange(file,fileList){
-      this.files=file
-      this.fileList = fileList;
-      console.log("---file----->"+this.fileList)//
       let reader = new FileReader();
-      reader.onload = function(e){
-        console.log("-------->")
+      reader.readAsDataURL(file.raw);
+      reader.onload = (e) => {
+        this.files.push({ name: file.raw.name, url: e.target.result });
       }
+      this.fileList.push(file.raw);
+      fileList = this.fileList;
+
+      console.log("---fileList----->"+this.fileList)
     },
     async submitUpload() {
-      // this.$refs.upload.submit();
       console.log("submitUpload-------->"+this.fileList)
-      let formData = new FormData();
-      formData.append('StudentInfoExcel', this.fileList.raw)
-      console.log(this.fileList)
-      const {data} = await scoresImport(this.fileList);
+      let formData = new window.FormData();
+      for (let i = 0; i < this.fileList.length; i++) {
+        formData.append('file', this.fileList[i]);
+      }
+      console.log(formData.get("file"))
+      const {data} = await scoresImport(formData);
       console.log(data)
+
       if (data.state === 200) {
         this.$message.success("导入成绩成功")
+        this.fileList=[],
         await this.getScoresList();
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //移除文件
     handleRemove(file, fileList) {
+      this.fileList=fileList
       console.log(file, fileList);
     },
     //查询成绩列表,默认最新的session
@@ -92,7 +101,7 @@ export default {
         this.tableData = data.data
       } else {
         //提示错误
-        alert(data.msg);
+        alert(data.message);
       }
     },
   }

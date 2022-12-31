@@ -20,17 +20,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="10">
-        <div class="highest_average">
-          <el-table :data="scoredata" height="75" border style="width: 100%">
-            <el-table-column prop="high" label="最高分" :formatter="formatter">
-            </el-table-column>
-            <el-table-column prop="avg" label="平均分" :formatter="formatter">
-            </el-table-column>
-          </el-table>
-        </div>
+        {{highavg}}
       </el-col>
+
       <el-col :span="6">
-        <el-button style="margin-right: 10px" @click="exportClick" type="success">导出表单</el-button>
+        <el-button style="margin-right: 10px" @click="exportClick" type="success">导出缺考表单</el-button>
       </el-col>
     </el-row>
     <!-- 饼状图第一行-->
@@ -58,12 +52,12 @@
     <el-row>
       <!--缺考的学生表单-->
       <div class="Absence">
-        <el-table :data="Absencedata" height="400" border style="width: 100%">
-          <el-table-column prop="uid" label="学号" sortable :formatter="formatter">
+        <el-table :data="Absencedata" height="400" border style="width: 100%" id="AbsenceTable">
+          <el-table-column prop="uid" label="学号" sortable>
           </el-table-column>
-          <el-table-column prop="uname" label="学生姓名" :formatter="formatter">
+          <el-table-column prop="uname" label="学生姓名">
           </el-table-column>
-          <el-table-column prop="grade" label="年级" sortable :formatter="formatter">
+          <el-table-column prop="grade" label="年级" sortable>
           </el-table-column>
         </el-table>
       </div>
@@ -72,6 +66,7 @@
 </template>
 <script type="text/ecmascript-6">
 import  Chart  from 'echarts';
+import FileSaver from "file-saver";
 import { inquireSumByGrade} from '@/api/datacenter/inquireSumByGrade';
 import { inquireSumByType } from '@/api/datacenter/inquireSumByType';
 import { inquireScoreByRange} from '@/api/datacenter/inquireScoreByRange';
@@ -84,11 +79,7 @@ export default {
   data() {
     return {
       session:'',
-      scoredata:[
-        //   {
-        // high:350,
-        // avg:170}
-      ],
+      highavg:'',
       Absencedata: [],
       options:[],
       //  成绩分布柱状图
@@ -358,11 +349,16 @@ export default {
     //获取最高分和平均分
     async getScoreInfo() {
       const {data} = await inquireHighestAndAverage(this.session);
-      console.log(data)
       if (data.state === 200) {
-        this.scoredata = data.data
+        let arr = []
+        for(let i=0; i<2; i++){
+          arr.push(data.data[i]);
+        }
+        let Data = "最高分为"+arr[0]+"，平均分为"+arr[1];
+        this.highavg=Data
+        console.log(Data)
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     // 报名类型统计
@@ -378,7 +374,7 @@ export default {
         })
       }
       else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     // 报名年级统计
@@ -394,7 +390,7 @@ export default {
         })
       }
       else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //成绩分布
@@ -413,10 +409,9 @@ export default {
             data: ScoreR
           }]
         })
-        //console.log(ScoreR)
       }
       else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //获取缺考的列表
@@ -425,13 +420,13 @@ export default {
       if (data.state === 200) {
         this.Absencedata = data.data
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //导出
     exportClick() {
       //第一个参数是到处后文件名，第二个是id绑定表格dom
-      this.exportExcel("datacenter", "DataCenterTable");
+      this.exportExcel("datacenter", "AbsenceTable");
     },
     exportExcel(filename, tableId) {
       const xlsxParam = {raw: true}; // 导出的内容只做解析，不进行格式转换

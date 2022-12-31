@@ -71,10 +71,10 @@
                 console.log(data)
                 if (data.state === 200) {
                     alert("修改成功，请重新登录！");
-                    this.$router.push(`/login`);
+                    this.$router.push(`/`);
                 }
                 else {
-                    alert(data.msg);
+                    alert(data.message);
                 }
             }
         }

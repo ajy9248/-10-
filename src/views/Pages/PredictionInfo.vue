@@ -118,7 +118,7 @@
                     this.tableData = data.data
                 }
                 else {
-                    alert(data.msg);
+                    alert(data.message);
                 }
             },
             // 根据id查询学生信息
@@ -132,7 +132,7 @@
                     }
                     this.tableData = arr
                 } else {
-                    alert(data.msg);
+                    alert(data.message);
                 }
             },
             async startPre () {
@@ -151,7 +151,7 @@
                 }
                 else {
                     this.startDialogVisible = false;
-                    alert(data.msg);
+                    alert(data.message);
                 }
             },
           //停止预报名后
@@ -164,7 +164,7 @@
                 }
                 else {
                     this.endDialogVisible = false;
-                    alert(data.msg);
+                    alert(data.message);
                 }
             }
         }

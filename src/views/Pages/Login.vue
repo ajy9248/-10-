@@ -42,20 +42,18 @@
                     return;
                 }
                 const { data } = await CheckLogin(form.username,form.password);
-                console.log(data)
 
                 if (data.state === 200) {
                     //存储用户信息
-                  window.sessionStorage.setItem('userToken',JSON.stringify(data.token))
-                  window.sessionStorage.setItem('userdata',JSON.stringify(data.data))
-
+                  // window.sessionStorage.setItem('userToken',JSON.stringify(data.token))
+                  // window.sessionStorage.setItem('userdata',JSON.stringify(data.data))
                   if(data.data.type === "管理员") {
                     console.log("1")
-                    this.$router.push('/')
+                    this.$router.push('/main')
                   }else if(data.data.type === "学生"){
                     console.log("2")
-                    console.log(form.username)
-                    console.log(data.data.freeChance)
+                    // console.log(form.username)
+                    // console.log(data.data.freeChance)
                     jsCookie.set('username', form.username)
                     jsCookie.set('freechance',data.data.freeChance)
                     this.$router.push('/StudentMain')
@@ -65,7 +63,7 @@
                   }
                 }
                 else {
-                    alert(data.msg);
+                    alert(data.message);
                 }
             }
         }

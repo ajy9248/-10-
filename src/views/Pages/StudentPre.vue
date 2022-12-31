@@ -53,21 +53,7 @@ export default {
     return{
       name: "StudentPre",
       student_id:'',
-      tableData: [
-      //   {
-      //     uid: 1,
-      //     uname: "张三",
-      //     pretype: "2020级",
-      //     pretime: "2022-10-01 22:33:44",
-      //     session: 21
-      //   },{
-      //     uid: 1,
-      //     uname: "张三",
-      //     pretype: "2020级",
-      //     pretime: "2022-10-01 22:55:00",
-      //     session: 21
-      // }
-      ],
+      tableData: [],
       preDialogVisible: false,
       preformData: [],
     }
@@ -77,7 +63,6 @@ export default {
   },
   created () {
     this.student_id=jsCookie.get('username')
-    console.log(this.student_id)
     this.getMyPredictionList();
   },
   methods: {
@@ -89,12 +74,12 @@ export default {
         center: true
       }).then(async () => {
         const {data} = await cancelPrediction(uid , session);
-        console.log(data)
         if (data.state === 200) {
-          alert("删除成功！");
-          await this.getStudentsList();
+          alert("撤销成功！");
+          await this.getMyPredictionList();
         } else {
-          alert(data.msg);
+          alert(data.message);
+          //alert("无法撤销已进行场次的预报名信息！");
         }
       })
     },
@@ -102,14 +87,16 @@ export default {
       this.preDialogVisible = true
     },
     //将修改数据提交到后台
-    preSubmit(preformData) {
-      const {data} = submitPrediction(this.student_id,preformData);
+    async preSubmit(preformData) {
+      const {data} = await submitPrediction(this.student_id,preformData);
       if (data.state === 200) {
-        this.modifyDialogVisible = false;
-        alert("修改成功！");
-        this.getMyPredictionList();
-      } else {
-        alert(data.msg);
+        this.preDialogVisible = false;
+        this.preformData=[];
+        alert("报名成功！");
+        await this.getMyPredictionList();
+      } else{
+        //alert("不能重复报名");
+        alert(data.message);
       }
     },
     async getMyPredictionList() {
@@ -119,7 +106,7 @@ export default {
         this.tableData = data.data
       } else {
         //提示错误
-        alert(data.msg);
+        alert(data.message);
       }
     }
   }

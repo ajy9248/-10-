@@ -52,7 +52,7 @@ export default {
         this.tableData = data.data
       } else {
         //提示错误
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //通过学生学号查询成绩
@@ -66,7 +66,7 @@ export default {
         }
         this.tableData = arr
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //通过输入场次查成绩
@@ -80,7 +80,7 @@ export default {
         }
         this.tableData = arr
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
   }

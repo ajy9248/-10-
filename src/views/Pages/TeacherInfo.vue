@@ -112,7 +112,7 @@ export default {
         this.tableData = data.data
       } else {
         //提示错误
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //uid查询教师
@@ -124,7 +124,7 @@ export default {
         arr.push(data.data)
         this.tableData = arr
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //让数据回显到编辑框
@@ -138,7 +138,7 @@ export default {
       }
       else {
         //提示错误
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //将修改数据提交到后台
@@ -148,11 +148,12 @@ export default {
       console.log(data)
       if (data.state === 200) {
         this.modifyDialogVisible = false;
+        this.modifyformData=[];
         alert("修改成功！");
-        this.getTeachersList();
+        await this.getTeachersList();
       }
       else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //获取选中的值
@@ -183,7 +184,7 @@ export default {
             alert("删除成功！");
             await this.getTeachersList();
           } else {
-            alert(data.msg);
+            alert(data.message);
           }
         })
       }
@@ -193,15 +194,15 @@ export default {
       console.log(this.addDialogVisible)
     },
     async addSubmit (addformData) {
-      const that = this;
       let { data } = await insertTeacher(addformData);
       if (data.state == 200) {
-        that.addDialogVisible = false;
+        this.addDialogVisible = false;
+        this.addformData=[];
         alert("添加成功！");
-        this.getTeachersList();
+        await this.getTeachersList();
       }
       else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
 

@@ -43,14 +43,13 @@
           :action="uploadUrl()"
           name="excelFile"
           :file-list="fileList"
-          accept=".xlsx,.xls"
+          accept=".xlsx"
           :on-remove="handleRemove"
           :on-change="onUploadChange"
           :auto-upload="false">
           <!--选择文件后立即上传-->
         <el-button type="primary">选取文件</el-button>
-
-        <div slot="tip" class="el-upload__tip">只能上传xlsx/xls文件</div>
+        <div slot="tip" class="el-upload__tip">只能上传xlsx文件</div>
       </el-upload>
       <el-button style="margin-left: 10px" type="success" @click="submitUpload">批量导入</el-button>
     </div>
@@ -105,34 +104,42 @@ export default {
       return (
           '/student/AddStudent'
       );
-
     },
     onUploadChange(file,fileList){
-      this.files=file
-      this.fileList = fileList;
-      console.log("---file----->"+this.fileList)//
       let reader = new FileReader();
-      reader.onload = function(e){
-        console.log("-------->")
+      reader.readAsDataURL(file.raw);
+      reader.onload = (e) => {
+        this.files.push({ name: file.raw.name, url: e.target.result });
       }
+      this.fileList.push(file.raw);
+      fileList = this.fileList;
+
+      // this.files=file//这是新添加的file
+      // this.fileList = fileList;//这是总体的fileList
+      console.log("---files----->"+this.files)
+      console.log("---fileList----->"+this.fileList)
     },
+
     async submitUpload() {
-      // this.$refs.upload.submit();
       console.log("submitUpload-------->"+this.fileList)
-      let formData = new FormData();
-      formData.append('StudentInfoExcel', this.fileList.raw)
-      console.log(this.fileList)
-      const {data} = await addStudents(this.fileList);
+      let formData = new window.FormData();
+      for (let i = 0; i < this.fileList.length; i++) {
+        formData.append('file', this.fileList[i]);
+      }
+      console.log(formData.get("file"))
+      const {data} = await addStudents(formData);
       console.log(data)
+
       if (data.state === 200) {
         this.$message.success("批量添加学生成功")
         await this.getStudentsList();
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //移除文件
     handleRemove(file, fileList) {
+      this.fileList=fileList
       console.log(file, fileList);
     },
     //查询学生列表
@@ -141,7 +148,7 @@ export default {
       if (data.state === 200) {
         this.tableData = data.data
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     // 根据id查询学生信息
@@ -154,7 +161,7 @@ export default {
         arr.push(data.data)
         this.tableData = arr
       } else {
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //让该行数据回显到编辑弹框里
@@ -167,7 +174,7 @@ export default {
       }
       else {
         //提示错误
-        alert(data.msg);
+        alert(data.message);
       }
     },
     //把修改后的数据提交到后台
@@ -176,12 +183,13 @@ export default {
       const { data } = await submitStudent(modifyformData);
       if (data.state === 200) {
         this.modifyDialogVisible = false;
+        this.modifyformData=[];
         alert("修改成功！");
         await this.getStudentsList();
       }
       else {
         this.modifyDialogVisible = false;
-        alert(data.msg);
+        alert(data.message);
       }
     },
     // 用于保存选中的行
@@ -212,7 +220,7 @@ export default {
             alert("删除成功！");
             await this.getStudentsList();
           } else {
-            alert(data.msg);
+            alert(data.message);
           }
         })
       }
