@@ -1,4 +1,4 @@
-# demo
+# CSP pre-registration system
 
 ## Project setup
 ```
